@@ -1,0 +1,43 @@
+from discord.ext import commands
+from discord import Embed
+from datetime import datetime as d
+
+class Basic(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.color = 0xffffff
+
+    @commands.command(
+        brief="Zeigt den Ping des Bots an",
+        description='Gibt den aktuellen Ping zurück',
+        aliases=['p'],
+        help="Gib einfach /ping ein und warte ab.",
+        usage=None
+    )
+    async def ping(self, ctx):
+        start = d.timestamp(d.now())
+        EMBED = Embed(title="Aktueller Ping", color=self.color)
+        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+        EMBED.add_field(name="Ping",value="Berechnen...")
+        msg = await ctx.send(embed=EMBED)
+        EMBED2 = Embed(title="Aktueller Ping", color=self.color)
+        EMBED2.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+        EMBED2.add_field(name="Ping",value=str(int(( d.timestamp( d.now() ) - start ) * 1000))+"ms")
+        await msg.edit(embed=EMBED2)
+        return
+
+    @commands.command(
+        brief="Schreibt dir nach",
+        description="Gibt den angegebenen Text zurück",
+        aliases=["copy"],
+        help="Benutze /say <Text> und der Bot schickt dir den Text zurück",
+        usage="<Text>"
+        )
+    async def say(self,ctx,Text:str,*args):
+        txt = Text+" "+(" ".join(str(i) for i in args))
+        await ctx.send(txt)
+        return
+
+
+def setup(bot):
+    bot.add_cog(Basic(bot))
