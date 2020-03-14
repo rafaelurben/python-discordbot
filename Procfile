@@ -1,1 +1,1 @@
-worker: python rafaelsbot/bot.py
+"worker: python rafaelsbot/bot.py" 
