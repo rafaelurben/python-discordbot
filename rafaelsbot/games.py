@@ -67,101 +67,104 @@ class Games(commands.Cog):
         usage="uuid <Spielername>/namen <UUID>/skin <UUID>/player <Spielername>"
     )
     async def minecraft(self, ctx, Unterbefehl:str, Parameter:str):
-        if Unterbefehl == "uuid" or Unterbefehl == "id": #Minecraft UUID
-            r = requests.get('https://api.mojang.com/users/profiles/minecraft/'+Parameter)
+        def getProfile(NAME):
+            r = requests.get('https://api.mojang.com/users/profiles/minecraft/'+NAME)
             if not r.status_code == 204:
-                JSON = r.json()
-                EMBED = Embed(title="Minecraft UUID", color=self.color)
-                EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="UUID",value=JSON["id"],inline=False)
-                EMBED.add_field(name="Name",value=JSON["name"],inline=False)
-                if "legacy" in JSON:
-                    EMBED.add_field(name="Legacy",value=JSON["legacy"])
-                if "demo" in JSON:
-                    EMBED.add_field(name="Demo",value=JSON["demo"])
-                await ctx.send(embed=EMBED)
+                return r.json()
             else:
                 raise commands.BadArgument(message="Spieler wurde nicht gefunden!")
 
-        elif Unterbefehl == "namen" or Unterbefehl == "names" or Unterbefehl == "name": #Fortnite Challenges
-            r = requests.get('https://api.mojang.com/user/profiles/'+Parameter+'/names')
+        def getProfiles(UUID):
+            r = requests.get('https://api.mojang.com/user/profiles/'+UUID+'/names')
             if not r.status_code == 204:
-                JSON = r.json()
-                EMBED = Embed(title="Minecraft Namen", color=self.color, description="Sortierung: Von neu bis alt.")
-                EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                for i in JSON[::-1]:
-                    if "changedToAt" in i:
-                        EMBED.add_field(name="Name ab "+str(datetime.datetime.fromtimestamp(int(i["changedToAt"])/1000).strftime('%d.%m.%Y %H:%M:%S')),value=i["name"], inline=False)
-                    else:
-                        EMBED.add_field(name="Name",value=i["name"], inline=False)
-                await ctx.send(embed=EMBED)
+                return r.json()
             else:
                 raise commands.BadArgument(message="UUID wurde nicht gefunden!")
 
-        elif Unterbefehl == "skin": #Fortnite Stats
-            r = requests.get('https://sessionserver.mojang.com/session/minecraft/profile/'+Parameter)
+        def getSkin(UUID):
+            r = requests.get('https://sessionserver.mojang.com/session/minecraft/profile/'+UUID)
             if not r.status_code == 204:
                 JSON = r.json()
                 if not "error" in JSON:
-                    EMBED = Embed(title="Minecraft Skin", color=self.color)
-                    EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                    EMBED.add_field(name="Name",value=JSON["name"])
-                    #EMBED.add_field(name="UUID",value=JSON["id"])
-                    for i in JSON["properties"]:
-                        base64_message = i["value"]
-                        base64_bytes = base64_message.encode('ascii')
-                        message_bytes = base64.b64decode(base64_bytes)
-                        message = message_bytes.decode('ascii')
-                        dictmessage = eval(message)
-                        if not dictmessage["textures"] == {}:
-                            skinurl = dictmessage["textures"]["SKIN"]["url"]
-                            EMBED.set_thumbnail(url=skinurl)
-                        else:
-                            EMBED.add_field(name="Skin",value="Wurde nicht gefunden. (Steve/Alex)", inline=False)
-                    await ctx.send(embed=EMBED)
+                    return JSON
                 else:
                     raise commands.BadArgument(message="Abfrage für einen Skin kann pro UUID maximal ein Mal pro Minute erfolgen!")
             else:
                 raise commands.BadArgument(message="UUID wurde nicht gefunden!")
 
+        if Unterbefehl == "uuid" or Unterbefehl == "id": #Minecraft UUID
+            JSON = getProfile(Parameter)
+            EMBED = Embed(title="Minecraft UUID", color=self.color)
+            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.add_field(name="UUID",value=JSON["id"],inline=False)
+            EMBED.add_field(name="Aktueller Name",value=JSON["name"],inline=False)
+            if "legacy" in JSON:
+                EMBED.add_field(name="Account",value="Alter Account")
+            if "demo" in JSON:
+                EMBED.add_field(name="Account",value="Demo Account")
+            await ctx.send(embed=EMBED)
+
+        elif Unterbefehl == "namen" or Unterbefehl == "names" or Unterbefehl == "name": #Fortnite Challenges
+            JSON = getProfiles(Parameter)
+            EMBED = Embed(title="Minecraft Namen", color=self.color, description="Sortierung: Von neu bis alt.")
+            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            for i in JSON[::-1]:
+                if "changedToAt" in i:
+                    EMBED.add_field(name="Name seit "+str(datetime.datetime.fromtimestamp(int(i["changedToAt"])/1000).strftime('%d.%m.%Y %H:%M:%S')),value=i["name"], inline=False)
+                else:
+                    EMBED.add_field(name="Ursprünglicher Name",value=i["name"], inline=False)
+            await ctx.send(embed=EMBED)
+
+        elif Unterbefehl == "skin": #Fortnite Stats
+            JSON = getSkin(Parameter)
+            EMBED = Embed(title="Minecraft Skin", color=self.color)
+            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.add_field(name="Aktueller Name",value=JSON["name"])
+            EMBED.add_field(name="UUID",value=JSON["id"])
+            for i in JSON["properties"]:
+                base64_message = i["value"]
+                base64_bytes = base64_message.encode('ascii')
+                message_bytes = base64.b64decode(base64_bytes)
+                message = message_bytes.decode('ascii')
+                dictmessage = eval(message)
+                if not dictmessage["textures"] == {}:
+                    skinurl = dictmessage["textures"]["SKIN"]["url"]
+                    EMBED.set_thumbnail(url=skinurl)
+                else:
+                    EMBED.add_field(name="Skin",value="Wurde nicht gefunden. (Steve/Alex)", inline=False)
+            await ctx.send(embed=EMBED)
+
+
         elif Unterbefehl == "spieler" or Unterbefehl == "player":
             EMBED = Embed(title="Minecraft Spieler", color=self.color)
             EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            r = requests.get('https://api.mojang.com/users/profiles/minecraft/'+Parameter)
-            if not r.status_code == 204:
-                JSON = r.json()
-                ID = JSON["id"]
-                EMBED.add_field(name="UUID",value=JSON["id"])
-                if "legacy" in JSON:
-                    EMBED.add_field(name="Legacy",value=JSON["legacy"])
-                if "demo" in JSON:
-                    EMBED.add_field(name="Demo",value=JSON["demo"])
-                r2 = requests.get('https://api.mojang.com/user/profiles/'+ID+'/names')
-                JSON2 = r2.json()
-                for i in JSON2[::-1]:
-                    if "changedToAt" in i:
-                        EMBED.add_field(name="Name ab "+str(datetime.datetime.fromtimestamp(int(i["changedToAt"])/1000).strftime('%d.%m.%Y %H:%M:%S')),value=i["name"], inline=False)
-                    else:
-                        EMBED.add_field(name="Name",value=i["name"], inline=False)
-                r3 = requests.get('https://sessionserver.mojang.com/session/minecraft/profile/'+ID)
-                JSON3 = r3.json()
-                if not "error" in JSON3:
-                    for i in JSON3["properties"]:
-                        base64_message = i["value"]
-                        base64_bytes = base64_message.encode('ascii')
-                        message_bytes = base64.b64decode(base64_bytes)
-                        message = message_bytes.decode('ascii')
-                        dictmessage = eval(message)
-                        if not dictmessage["textures"] == {}:
-                            skinurl = dictmessage["textures"]["SKIN"]["url"]
-                            EMBED.set_thumbnail(url=skinurl)
-                        else:
-                            EMBED.add_field(name="Skin",value="Wurde nicht gefunden. (Steve/Alex)", inline=False)
+            JSON = getProfile(Parameter)
+            UUID = JSON["id"]
+            EMBED.add_field(name="UUID",value=UUID)
+            if "legacy" in JSON:
+                EMBED.add_field(name="Account",value="Alter Account")
+            if "demo" in JSON:
+                EMBED.add_field(name="Account",value="Demo Account")
+            JSON2 = getProfiles(UUID)
+            for i in JSON2[::-1]:
+                if "changedToAt" in i:
+                    EMBED.add_field(name="Name seit "+str(datetime.datetime.fromtimestamp(int(i["changedToAt"])/1000).strftime('%d.%m.%Y %H:%M:%S')),value=i["name"], inline=False)
                 else:
-                    EMBED.add_field(name="Skin",value="Abfrage für einen Skin kann pro UUID maximal ein Mal pro Minute erfolgen!", inline=False)
-                await ctx.send(embed=EMBED)
-            else:
-                raise commands.BadArgument(message="Spieler wurde nicht gefunden!")
+                    EMBED.add_field(name="Ursprünglicher Name",value=i["name"], inline=False)
+            JSON3 = getSkin(UUID)
+            for i in JSON3["properties"]:
+                base64_message = i["value"]
+                base64_bytes = base64_message.encode('ascii')
+                message_bytes = base64.b64decode(base64_bytes)
+                message = message_bytes.decode('ascii')
+                dictmessage = eval(message)
+                if not dictmessage["textures"] == {}:
+                    skinurl = dictmessage["textures"]["SKIN"]["url"]
+                    EMBED.set_thumbnail(url=skinurl)
+                else:
+                    EMBED.add_field(name="Skin",value="Wurde nicht gefunden. (Steve/Alex)", inline=False)
+            await ctx.send(embed=EMBED)
+
         else:
             raise commands.BadArgument(message="Unbekannter Unterbefehl!")
         return

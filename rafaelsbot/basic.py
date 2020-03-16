@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import Embed
+from discord import Embed, User
 from datetime import datetime as d
 
 class Basic(commands.Cog):
@@ -36,6 +36,19 @@ class Basic(commands.Cog):
     async def say(self,ctx,Text:str,*args):
         txt = Text+" "+(" ".join(str(i) for i in args))
         await ctx.send(txt)
+        return
+
+    @commands.command(
+        brief="Spamt jemanden voll",
+        description="Schickt jemandem ein paar Nachrichten",
+        aliases=["troll"],
+        help="Benutze /spam <Text> und der Bot schickt dir den Text zurück",
+        usage="<User> [Anzahl<100] [Text]"
+        )
+    async def spam(self,ctx,user:User,anzahl:int=10,*args):
+        anzahl = int(anzahl if anzahl <=100 else 100)
+        for i in range(anzahl):
+            await user.send("[Spam] - "+(" ".join(str(i) for i in args)))
         return
 
 
