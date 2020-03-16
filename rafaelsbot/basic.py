@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import Embed, User
+from discord import Embed, User, TextChannel, utils
 from datetime import datetime as d
 
 class Basic(commands.Cog):
@@ -42,13 +42,26 @@ class Basic(commands.Cog):
         brief="Spamt jemanden voll",
         description="Schickt jemandem ein paar Nachrichten",
         aliases=["troll"],
-        help="Benutze /spam <Text> und der Bot schickt dir den Text zurück",
+        help="Benutze /spam <User> und der Bot spamt den User voll",
         usage="<User> [Anzahl<100] [Text]"
         )
     async def spam(self,ctx,user:User,anzahl:int=10,*args):
         anzahl = int(anzahl if anzahl <=100 else 100)
         for i in range(anzahl):
-            await user.send("[Spam] - "+(" ".join(str(i) for i in args)))
+            await user.send("[Spam] "+(" ".join(str(i) for i in args)))
+        return
+
+    @commands.command(
+        brief="Spamt einen Kanal voll",
+        description="Schickt einem Kanal ein paar Nachrichten",
+        aliases=["trollchat"],
+        help="Benutze /spam <Channel> und der Bot spamt den Channel voll",
+        usage="<Channel> [Anzahl<100] [Text]"
+        )
+    async def spamchat(self,ctx,channel:TextChannel,anzahl:int=10,*args):
+        anzahl = int(anzahl if anzahl <=100 else 100)
+        for i in range(anzahl):
+            await channel.send("[Spam] "+(" ".join(str(i) for i in args)))
         return
 
 
