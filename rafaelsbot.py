@@ -67,19 +67,6 @@ async def on_command_error(ctx,error):
 
 
 #Owner-only
-@bot.command(aliases=["rules"])
-@commands.is_owner()
-async def regeln(ctx):
-    EMBED = Embed(title="Regeln", color=0x00ff00, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
-    EMBED.set_footer(text=f'Admin dieses Bots ist {ctx.message.author.name}#{ctx.message.author.discriminator}',icon_url=ctx.author.avatar_url)
-    EMBED.add_field(name="Regel Nr. 1",value="Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!",inline=False)
-    EMBED.add_field(name="Regel Nr. 2",value="Kein Spamming!",inline=False)
-    EMBED.add_field(name="Regel Nr. 3",value="Keine Werbung!",inline=False)
-    EMBED.add_field(name="Regel Nr. 4",value="Keine anstössigen Inhalte!",inline=False)
-    EMBED.add_field(name="Regel Nr. 5",value="Befolge Anweisungen von Moderatoren, Supportern und Admins!",inline=False)
-    EMBED.add_field(name="Regel Nr. 6",value="Spass haben! :)",inline=False)
-    msg = await ctx.send(embed=EMBED)
-
 
 @bot.command()
 @commands.is_owner()

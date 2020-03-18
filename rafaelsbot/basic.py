@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import Embed, User, TextChannel, utils
 from datetime import datetime as d
+import typing
 
 class Basic(commands.Cog):
     def __init__(self, bot):
@@ -43,26 +44,39 @@ class Basic(commands.Cog):
         description="Schickt jemandem ein paar Nachrichten",
         aliases=["troll"],
         help="Benutze /spam <User> und der Bot spamt den User voll",
-        usage="<User> [Anzahl<100] [Text]"
+        usage="<Kanal/Benutzer> [Anzahl<100] [Text]"
         )
-    async def spam(self,ctx,user:User,anzahl:int=10,*args):
+    async def spam(self,ctx,what: typing.Union[TextChannel,User],anzahl:int=10,*args):
         anzahl = int(anzahl if anzahl <=100 else 100)
+        text = str(" ".join(str(i) for i in args))
+        empty = not (len(text) > 0 and not text == (" "*len(text)))
         for i in range(anzahl):
-            await user.send("[Spam] "+(" ".join(str(i) for i in args)))
+            if not empty:
+                await what.send(text)
+            else:
+                await what.send("[Spam]")
         return
 
+
     @commands.command(
-        brief="Spamt einen Kanal voll",
-        description="Schickt einem Kanal ein paar Nachrichten",
-        aliases=["trollchat"],
-        help="Benutze /spam <Channel> und der Bot spamt den Channel voll",
-        usage="<Channel> [Anzahl<100] [Text]"
+        brief="Zeigt die Regeln",
+        description="Schickt die Regeln in den Chat",
+        aliases=["rules"],
+        help="Benutze /regeln um dich oder jemand anderes daran zu erinnern!",
+        usage="<Kanal/Benutzer> [Anzahl<100] [Text]"
         )
-    async def spamchat(self,ctx,channel:TextChannel,anzahl:int=10,*args):
-        anzahl = int(anzahl if anzahl <=100 else 100)
-        for i in range(anzahl):
-            await channel.send("[Spam] "+(" ".join(str(i) for i in args)))
-        return
+    async def regeln(self,ctx):
+        EMBED = Embed(title="Regeln", color=0x00ff00, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
+        owner = self.bot.get_user(self.bot.owner_id)
+        EMBED.set_footer(text=f'Admin dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
+        EMBED.add_field(name="1) Sei anständig",value="- Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!",inline=False)
+        EMBED.add_field(name="2) Spamming",     value="- Spamming ist verboten!",inline=False)
+        EMBED.add_field(name="3) Werbung",      value="- Werbung ist verboten!",inline=False)
+        EMBED.add_field(name="4) NSFW",         value="- Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft! \n- Hier sind auch Kinder und Jugendliche auf diesem Server!",inline=False)
+        EMBED.add_field(name="5) Sicherheit",   value="- Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!\n- Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.\n- Sendet nie jemandem euer Passwort!",inline=False)
+        EMBED.add_field(name="6) Empfehlungen", value="- Habt Spass!",inline=False)
+        msg = await ctx.send(embed=EMBED)
+
 
 
 def setup(bot):

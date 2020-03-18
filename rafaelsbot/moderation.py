@@ -12,7 +12,7 @@ class Moderation(commands.Cog):
         description="Leert den Chat",
         aliases=["cc"],
         help="Gib einfach /clearchat ein und der Chat wird bald leer sein",
-        usage="<Anzahl>"
+        usage=""
         )
     @commands.has_permissions(manage_messages = True)
     @commands.bot_has_permissions(manage_messages = True)
