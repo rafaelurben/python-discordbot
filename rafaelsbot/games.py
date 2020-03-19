@@ -1,9 +1,7 @@
 from discord.ext import commands
 from discord import Embed
-import requests, datetime, base64
+import requests, datetime, base64, os
 
-
-TRNAPIKEY = "9b307d9b-61bb-4eef-a1de-e1da6f844d0e"
 
 class Games(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +16,7 @@ class Games(commands.Cog):
         usage="store/challenges/stats <Plattform> <Spielername>"
     )
     async def fortnite(self, ctx, Unterbefehl, platform="", playername=""):
-        headers = {'TRN-Api-Key': TRNAPIKEY}
+        headers = {'TRN-Api-Key': os.environ.get("TRNAPIKEY")}
         if Unterbefehl == "store" or Unterbefehl == "shop": #Fortnite Store
             r = requests.get('https://api.fortnitetracker.com/v1/store', headers=headers)
             JSON = r.json()

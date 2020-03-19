@@ -11,7 +11,7 @@ def get_prefix(client, message):
 
 bot = commands.Bot(command_prefix=get_prefix,description='Das ist eine Beschreibung!',case_insensitive=True)
 
-extensions = ['basic','support','moderation','music','games','help']
+extensions = ['basic','support','moderation','music','games','help','channels']
 
 @bot.event
 async def on_ready():

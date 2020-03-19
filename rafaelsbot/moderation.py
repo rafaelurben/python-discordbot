@@ -82,8 +82,7 @@ class Moderation(commands.Cog):
             Grund = "Leer"
         User = self.bot.get_user(userid)
         if User == None:
-            await ctx.send("Benutzer wurde nicht gefunden!")
-            return
+            raise commands.BadArgument(message="Benutzer wurde nicht gefunden!")
         EMBED = Embed(title="Benutzer Entbannt", color=self.color)
         EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
         EMBED.add_field(name="Betroffener",value=User.mention)
@@ -92,8 +91,9 @@ class Moderation(commands.Cog):
             await ctx.guild.unban(User,reason=Grund)
             await ctx.send(embed=EMBED)
         except:
-            await ctx.send("Benutzer wurde nicht gefunden!")
+            raise commands.BadArgument(message="Benutzer wurde nicht gefunden!")
         return
+
 
     @commands.command(
         brief="Tötet einen Spieler",

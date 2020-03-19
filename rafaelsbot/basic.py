@@ -74,7 +74,8 @@ class Basic(commands.Cog):
         EMBED.add_field(name="3) Werbung",      value="- Werbung ist verboten!",inline=False)
         EMBED.add_field(name="4) NSFW",         value="- Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft! \n- Hier sind auch Kinder und Jugendliche auf diesem Server!",inline=False)
         EMBED.add_field(name="5) Sicherheit",   value="- Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!\n- Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.\n- Sendet nie jemandem euer Passwort!",inline=False)
-        EMBED.add_field(name="6) Empfehlungen", value="- Habt Spass!",inline=False)
+        EMBED.add_field(name="6) Ton",          value="- Benutzt keinen Stimmverzerrer!\n- Macht keine Unnötigen Hintergrundgeräusche!",inline=False)
+        EMBED.add_field(name="7) Empfehlungen", value="- Habt Spass!",inline=False)
         msg = await ctx.send(embed=EMBED)
 
 
