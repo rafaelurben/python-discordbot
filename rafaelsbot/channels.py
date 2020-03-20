@@ -21,9 +21,8 @@ class Channels(commands.Cog):
                 if after.channel and after.channel.name == "Sprachkanal erstellen":
                     channel = utils.get(member.guild.voice_channels, name=(member.name+"#"+member.discriminator))
                     if channel:
-                        if ctx.author.voice:
-                            await member.edit(voice_channel=channel,reason="Benutzer wollte einen Kanal erstellen, besitzte aber bereits einen")
-                    elif category:
+                        await member.edit(voice_channel=channel,reason="Benutzer wollte einen Kanal erstellen, besitzte aber bereits einen")
+                    else:
                         overwrites = { member.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), member: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True) }
                         newchannel = await category.create_voice_channel(name=(member.name+"#"+member.discriminator),overwrites=overwrites)
                         await member.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
