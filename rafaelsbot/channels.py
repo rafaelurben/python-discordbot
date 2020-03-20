@@ -22,7 +22,7 @@ class Channels(commands.Cog):
 
         @bot.event
         async def on_voice_state_update(member, before, after):
-            category = await getCategory(member.guild):
+            category = await getCategory(member.guild)
             if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and "#" in before.channel.name and before.channel.members == []:
                 await before.channel.delete(reason="Kanal war leer")
                 channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
