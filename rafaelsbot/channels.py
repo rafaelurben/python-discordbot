@@ -9,13 +9,25 @@ class Channels(commands.Cog):
 
         @bot.event
         async def on_voice_state_update(member, before, after):
-            if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and before.channel.members == []:
-                await before.channel.delete(reason="War leer")
-                channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
-                EMBED = Embed(title="Sprachkanal gelöscht!", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
-                EMBED.add_field(name="Server",value=member.guild.name)
-                await channelowner.send(embed=EMBED)
+            category = utils.get(member.guild.categories, name="Benutzerkanäle")
+            if category:
+                if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and "#" in before.channel.name and before.channel.members == []:
+                    await before.channel.delete(reason="Kanal war leer")
+                    channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
+                    EMBED = Embed(title="Sprachkanal gelöscht!", color=self.color)
+                    EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
+                    EMBED.add_field(name="Server",value=member.guild.name)
+                    await channelowner.send(embed=EMBED)
+                if after.channel and after.channel.name == "Sprachkanal erstellen":
+                    channel = utils.get(member.guild.voice_channels, name=(member.name+"#"+member.discriminator))
+                    if channel:
+                        if ctx.author.voice:
+                            await member.edit(voice_channel=channel,reason="Benutzer wollte einen Kanal erstellen, besitzte aber bereits einen")
+                    elif category:
+                        overwrites = { member.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), member: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True) }
+                        newchannel = await category.create_voice_channel(name=(member.name+"#"+member.discriminator),overwrites=overwrites)
+                        await member.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
+            return
 
 
     @commands.bot_has_permissions(manage_channels = True)
@@ -39,7 +51,7 @@ class Channels(commands.Cog):
             EMBED.add_field(name="Kanal",value="<#"+str(newchannel.id)+">")
             await ctx.send(embed=EMBED)
         else:
-            raise commands.BadArgument(message="Es gibt noch keine Kategorie mit dem Namen Benutzerkanäle!")
+            raise commands.BadArgument(message="Dieses Feature ist auf diesem Server nicht aktiviert. Es gibt keine Kategorie mit dem Namen Benutzerkanäle!")
         return
 
     @commands.bot_has_permissions(manage_channels = True)
@@ -80,7 +92,7 @@ class Channels(commands.Cog):
                 await ctx.author.edit(voice_channel=channel,reason="Benutzer hat den Kanal erstellt")
             raise commands.BadArgument(message="Du hast bereits einen Sprachkanal!")
         elif category:
-            overwrites = { ctx.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), ctx.author: PermissionOverwrite(connect=True,speak=True,read_messages=True) }
+            overwrites = { ctx.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), ctx.author: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True) }
             newchannel = await category.create_voice_channel(name=(ctx.author.name+"#"+ctx.author.discriminator),overwrites=overwrites)
             EMBED = Embed(title="Sprachkanal erstellt!", color=self.color)
             EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
@@ -88,7 +100,7 @@ class Channels(commands.Cog):
             if ctx.author.voice:
                 await ctx.author.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
         else:
-            raise commands.BadArgument(message="Es gibt noch keine Kategorie mit dem Namen Benutzerkanäle!")
+            raise commands.BadArgument(message="Dieses Feature ist auf diesem Server nicht aktiviert. Es gibt keine Kategorie mit dem Namen Benutzerkanäle!")
         return
 
     @commands.bot_has_permissions(manage_channels = True)
