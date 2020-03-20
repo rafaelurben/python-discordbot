@@ -15,6 +15,7 @@ class Music(commands.Cog):
         help="Benutze /play <Link> um ein YouTube Video abzuspielen",
         usage="<Link>"
     )
+    @commands.guild_only()
     async def play(self, ctx):
         pass
 
@@ -27,6 +28,7 @@ class Music(commands.Cog):
         help="Benutze /usersong <Member> um den Song zu erhalten",
         usage="<Member>"
     )
+    @commands.guild_only()
     async def usersong(self, ctx, Member:Member):
         found = False
         for activity in Member.activities:

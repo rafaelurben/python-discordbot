@@ -66,7 +66,7 @@ class Basic(commands.Cog):
         usage="<Kanal/Benutzer> [Anzahl<100] [Text]"
         )
     async def regeln(self,ctx):
-        EMBED = Embed(title="Regeln", color=0x00ff00, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
+        EMBED = Embed(title="Regeln", color=self.color, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
         owner = self.bot.get_user(self.bot.owner_id)
         EMBED.set_footer(text=f'Admin dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
         EMBED.add_field(name="1) Sei anständig",value="- Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!",inline=False)
@@ -79,6 +79,28 @@ class Basic(commands.Cog):
         msg = await ctx.send(embed=EMBED)
 
 
+    @commands.command(
+        brief="Erhalte eine Einladung",
+        description="Schickt dir eine Einladung zum Server und Bot",
+        aliases=["invitelink"],
+        help="Benutze /invite und erhalte eine Einladung zu diesem Server, dem Bot-Server und einen Link, um den Bot zum eigenen Server hinzuzufügen",
+        usage=""
+        )
+    @commands.bot_has_permissions(manage_guild = True)
+    async def invite(self,ctx):
+        EMBED = Embed(title="Einladung", color=self.color)
+        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+        try:
+            invite = await ctx.guild.vanity_invite()
+        except:
+            invite = utils.get(list(await ctx.guild.invites()), max_age=0, max_uses=0, temporary=False)
+            if not invite:
+                invite = await ctx.channel.create_invite()
+        EMBED.add_field(name="Dieser Server",value=invite.url)
+        EMBED.add_field(name="Bot Server",value="https://rebrand.ly/RUdiscord")
+        EMBED.add_field(name="Bot",value="https://rebrand.ly/RUdiscordbot")
+        await ctx.send(embed=EMBED)
+        return
 
 def setup(bot):
     bot.add_cog(Basic(bot))

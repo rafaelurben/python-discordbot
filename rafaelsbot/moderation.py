@@ -7,6 +7,7 @@ class Moderation(commands.Cog):
         self.bot = bot
         self.color = 0x5156ff
 
+
     @commands.command(
         brief="Leert den Chat",
         description="Leert den Chat",
@@ -16,6 +17,7 @@ class Moderation(commands.Cog):
         )
     @commands.has_permissions(manage_messages = True)
     @commands.bot_has_permissions(manage_messages = True)
+    @commands.guild_only()
     async def clearchat(self,ctx):
         await ctx.message.channel.purge()
         return
@@ -31,6 +33,7 @@ class Moderation(commands.Cog):
         )
     @commands.has_permissions(kick_members = True)
     @commands.bot_has_permissions(kick_members = True)
+    @commands.guild_only()
     async def kick(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
         if Grund.rstrip() == "":
@@ -53,6 +56,7 @@ class Moderation(commands.Cog):
         )
     @commands.has_permissions(ban_members = True)
     @commands.bot_has_permissions(ban_members = True)
+    @commands.guild_only()
     async def ban(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
         if Grund.rstrip() == "":
@@ -76,6 +80,7 @@ class Moderation(commands.Cog):
         )
     @commands.has_permissions(ban_members = True)
     @commands.bot_has_permissions(ban_members = True)
+    @commands.guild_only()
     async def unban(self, ctx, userid: int, *args):
         Grund = " ".join(args)
         if Grund.rstrip() == "":
@@ -102,6 +107,7 @@ class Moderation(commands.Cog):
         help="Benutze /kill <Member> [Grund] um einen Spieler zu töten",
         usage="<Member> [Grund]"
         )
+    @commands.guild_only()
     async def kill(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
         if Grund.rstrip() == "":

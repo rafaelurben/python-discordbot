@@ -15,6 +15,7 @@ class Support(commands.Cog):
         help="Wenn ein Benutzer Blödsinn treibt, dann benutze /report <Member> [Grund]",
         usage="<Member> [Grund]"
         )
+    @commands.guild_only()
     async def report(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
         serverfiles.createReport(ctx.guild.id,Member.id,Grund,ctx.author.id)
@@ -34,6 +35,7 @@ class Support(commands.Cog):
         usage="[Member]"
         )
     @commands.has_any_role("Moderator","Supporter","Admin")
+    @commands.guild_only()
     async def reports(self, ctx, Member:Member=None):
         if Member == None:
             EMBED = Embed(title="Server Reports", color=self.color)
