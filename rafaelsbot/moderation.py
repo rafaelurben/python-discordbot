@@ -15,6 +15,7 @@ class Moderation(commands.Cog):
         help="Gib einfach /clearchat ein und der Chat wird bald leer sein",
         usage=""
         )
+    @commands.cooldown(1,5.0,commands.BucketType.channel)
     @commands.has_permissions(manage_messages = True)
     @commands.bot_has_permissions(manage_messages = True)
     @commands.guild_only()

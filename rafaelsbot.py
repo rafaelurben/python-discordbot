@@ -38,6 +38,8 @@ async def on_command_error(ctx,error):
         EMBED.add_field(name="Beschreibung",value="Du hast ein benötigtes Argument weggelassen!")
     elif isinstance(error, commands.CommandNotFound):
         EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
+    elif isinstance(error, commands.CommandOnCooldown):
+        EMBED.add_field(name="Beschreibung",value="Warte, bis du diesen Befehl erneut benutzen kannst!")
     elif isinstance(error, commands.DisabledCommand):
         EMBED.add_field(name="Beschreibung",value="Dieser Command ist aktuell deaktiviert!")
     elif isinstance(error, commands.TooManyArguments):

@@ -18,6 +18,7 @@ class Support(commands.Cog):
     @commands.guild_only()
     async def report(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
+        Grund = Grund if Grund.rstrip(" ") else "Leer"
         serverfiles.createReport(ctx.guild.id,Member.id,Grund,ctx.author.id)
         EMBED = Embed(title="Benutzer Gemeldet", color=self.color)
         EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
