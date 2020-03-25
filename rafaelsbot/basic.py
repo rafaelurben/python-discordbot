@@ -68,14 +68,14 @@ class Basic(commands.Cog):
     async def regeln(self,ctx):
         EMBED = Embed(title="Regeln", color=self.color, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
         owner = self.bot.get_user(self.bot.owner_id)
-        EMBED.set_footer(text=f'Admin dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
-        EMBED.add_field(name="1) Sei anständig",value="- Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!",inline=False)
-        EMBED.add_field(name="2) Spamming",     value="- Spamming ist verboten!",inline=False)
-        EMBED.add_field(name="3) Werbung",      value="- Werbung ist verboten!",inline=False)
-        EMBED.add_field(name="4) NSFW",         value="- Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft! \n- Hier sind auch Kinder und Jugendliche auf diesem Server!",inline=False)
-        EMBED.add_field(name="5) Sicherheit",   value="- Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!\n- Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.\n- Sendet nie jemandem euer Passwort!",inline=False)
-        EMBED.add_field(name="6) Ton",          value="- Benutzt keinen Stimmverzerrer!\n- Macht keine Unnötigen Hintergrundgeräusche!",inline=False)
-        EMBED.add_field(name="7) Empfehlungen", value="- Habt Spass!",inline=False)
+        EMBED.set_footer(text=f'Ersteller dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
+        EMBED.add_field(name="1) Sei anständig",value="```nimrod\n- Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!```",inline=False)
+        EMBED.add_field(name="2) Spamming",     value="```nimrod\n- Spamming ist verboten!```",inline=False)
+        EMBED.add_field(name="3) Werbung",      value="```nimrod\n- Werbung ist verboten!```",inline=False)
+        EMBED.add_field(name="4) NSFW",         value="```nimrod\n- Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft! \n- Hier sind auch Kinder und Jugendliche auf diesem Server!```",inline=False)
+        EMBED.add_field(name="5) Sicherheit",   value="```nimrod\n- Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!\n- Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.\n- Sendet nie jemandem euer Passwort!```",inline=False)
+        EMBED.add_field(name="6) Ton",          value="```nimrod\n- Benutzt keinen Stimmverzerrer!\n- Macht keine unnötigen Hintergrundgeräusche!```",inline=False)
+        EMBED.add_field(name="7) Empfehlungen", value="```nimrod\n- Habt Spass!```",inline=False)
         msg = await ctx.send(embed=EMBED)
 
 
