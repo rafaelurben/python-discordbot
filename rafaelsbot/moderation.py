@@ -43,7 +43,7 @@ class Moderation(commands.Cog):
         EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
         EMBED.add_field(name="Betroffener",value=Member.mention)
         EMBED.add_field(name="Grund",value=Grund)
-        await Member.kick(reason=Grund)
+        await Member.kick(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
         await ctx.send(embed=EMBED)
         return
 
@@ -66,7 +66,7 @@ class Moderation(commands.Cog):
         EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
         EMBED.add_field(name="Betroffener",value=Member.mention)
         EMBED.add_field(name="Grund",value=Grund)
-        await Member.kick(reason=Grund)
+        await Member.ban(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
         await ctx.send(embed=EMBED)
         return
 
@@ -94,7 +94,7 @@ class Moderation(commands.Cog):
         EMBED.add_field(name="Betroffener",value=User.mention)
         EMBED.add_field(name="Grund",value=Grund)
         try:
-            await ctx.guild.unban(User,reason=Grund)
+            await ctx.guild.unban(User,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
             await ctx.send(embed=EMBED)
         except:
             raise commands.BadArgument(message="Benutzer wurde nicht gefunden!")
@@ -117,7 +117,7 @@ class Moderation(commands.Cog):
         if VoiceState:
             if VoiceState.channel.permissions_for(ctx.author).move_members:
                 if VoiceState.channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).move_members:
-                    await Member.edit(voice_channel=None,reason=Grund)
+                    await Member.edit(voice_channel=None,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
                     EMBED = Embed(title="Benutzer Getötet", color=self.color)
                     EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
                     EMBED.add_field(name="Betroffener",value=Member.mention)
