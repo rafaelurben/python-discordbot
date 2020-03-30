@@ -3,6 +3,34 @@ from discord import Embed, User, TextChannel, utils
 from datetime import datetime as d
 import typing
 
+REGELN = {
+    "1) Sei anständig":
+        [
+            "Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!"
+        ],
+    "2) Text":
+        [
+            "Spamming ist verboten!","Werbung ist verboten!"
+        ],
+    "3) NSFW":
+        [
+            "Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft!","Hier sind auch Kinder und Jugendliche auf diesem Server!"
+        ],
+    "4) Sicherheit":
+        [
+            "Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!","Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.","Sendet nie jemandem euer Passwort!"
+        ],
+    "5) Ton":
+        [
+            "Benutzt keinen Stimmverzerrer!", "Macht keine unnötigen Hintergrundgeräusche!"
+        ],
+    "6) Empfehlungen":
+        [
+            "Habt Spass!"
+        ]
+}
+
+
 class Basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -44,17 +72,17 @@ class Basic(commands.Cog):
         description="Schickt jemandem ein paar Nachrichten",
         aliases=["troll"],
         help="Benutze /spam <User> und der Bot spamt den User voll",
-        usage="<Kanal/Benutzer> [Anzahl<100] [Text]"
+        usage="<Kanal/Benutzer> [Anzahl<5] [Text]"
         )
-    async def spam(self,ctx,what: typing.Union[TextChannel,User],anzahl:int=10,*args):
-        anzahl = int(anzahl if anzahl <=100 else 100)
+    async def spam(self,ctx,what: typing.Union[TextChannel,User],anzahl:int=5,*args):
+        anzahl = int(anzahl if anzahl <= 10 else 10)
         text = str(" ".join(str(i) for i in args))
         empty = not (len(text) > 0 and not text == (" "*len(text)))
         for i in range(anzahl):
             if not empty:
-                await what.send(text)
+                await what.send(text+" von "+ctx.author.name+"#"+ctx.author.discriminator)
             else:
-                await what.send("[Spam]")
+                await what.send("Spam"+" von "+ctx.author.name+"#"+ctx.author.discriminator)
         return
 
 
@@ -68,14 +96,9 @@ class Basic(commands.Cog):
     async def regeln(self,ctx):
         EMBED = Embed(title="Regeln", color=self.color, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
         owner = self.bot.get_user(self.bot.owner_id)
-        EMBED.set_footer(text=f'Ersteller dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
-        EMBED.add_field(name="1) Sei anständig",value="```nimrod\n- Sei nett zu anderen Leuten und behandle sie so, wie auch du behandelt werden möchtest!```",inline=False)
-        EMBED.add_field(name="2) Spamming",     value="```nimrod\n- Spamming ist verboten!```",inline=False)
-        EMBED.add_field(name="3) Werbung",      value="```nimrod\n- Werbung ist verboten!```",inline=False)
-        EMBED.add_field(name="4) NSFW",         value="```nimrod\n- Anstössige Inhalte werden sofort gelöscht und der Autor mit einem Bann bestraft! \n- Hier sind auch Kinder und Jugendliche auf diesem Server!```",inline=False)
-        EMBED.add_field(name="5) Sicherheit",   value="```nimrod\n- Anweisungen von Moderatoren, Supportern und Admins müssen befolgt werden!\n- Falls jemand ohne Grund nach persönlichen Daten fragt, ignoriert bitte die Nachricht und meldet sie einem anderen Admin.\n- Sendet nie jemandem euer Passwort!```",inline=False)
-        EMBED.add_field(name="6) Ton",          value="```nimrod\n- Benutzt keinen Stimmverzerrer!\n- Macht keine unnötigen Hintergrundgeräusche!```",inline=False)
-        EMBED.add_field(name="7) Empfehlungen", value="```nimrod\n- Habt Spass!```",inline=False)
+        EMBED.set_footer(text=f'Besitzer dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
+        for kategorie in REGELN:
+            EMBED.add_field(name=kategorie,value="```nimrod\n- "+ ("\n- ".join(regel for regel in REGELN[kategorie])) +"```",inline=False)
         msg = await ctx.send(embed=EMBED)
 
 
