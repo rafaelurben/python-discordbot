@@ -1,1 +1,1 @@
-web: python rafaelsbot.py
+rafaelsbot: python rafaelsbot.py
