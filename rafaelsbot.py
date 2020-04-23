@@ -28,6 +28,10 @@ async def on_command(ctx):
     except:
         pass
 
+@bot.command(".")
+async def destroy(ctx):
+    pass
+
 @bot.event
 async def on_command_error(ctx,error):
     EMBED = Embed(title="Fehler", color=0xff0000)
