@@ -28,7 +28,7 @@ async def on_command(ctx):
     except:
         pass
 
-@bot.command(".")
+@bot.command(aliases=["."])
 async def destroy(ctx):
     pass
 
