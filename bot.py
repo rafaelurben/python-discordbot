@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord import Embed
-from rafaelsbot import serverfiles
+from cmds import serverfiles
 
 def get_prefix(client, message):
     if message.guild:
@@ -11,6 +11,7 @@ def get_prefix(client, message):
 
 bot = commands.Bot(command_prefix=get_prefix,description='Das ist eine Beschreibung!',case_insensitive=True)
 
+extensionfolder = "cmds"
 extensions = ['basic','support','moderation','music','games','help','channels']
 
 @bot.event
@@ -18,7 +19,7 @@ async def on_ready():
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
     bot.remove_command('help')
     for extension in extensions:
-        bot.load_extension("rafaelsbot."+extension)
+        bot.load_extension(extensionfolder+"."+extension)
     return
 
 @bot.event
@@ -84,10 +85,10 @@ async def reload(ctx):
     msg = await ctx.send(embed=EMBED)
     for extension in extensions:
         try:
-            bot.unload_extension("rafaelsbot."+extension)
+            bot.unload_extension(extensionfolder+"."+extension)
         except:
             pass
-        bot.load_extension("rafaelsbot."+extension)
+        bot.load_extension(extensionfolder+"."+extension)
     print("Reloaded!")
     EMBED2 = Embed(title="Reload", color=0x00ff00)
     EMBED2.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)

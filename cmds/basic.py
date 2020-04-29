@@ -96,7 +96,8 @@ class Basic(commands.Cog):
     async def regeln(self,ctx):
         EMBED = Embed(title="Regeln", color=self.color, description="Das Nichtbeachten der Regeln kann mit einem Ban, Kick oder Mute bestraft werden!")
         owner = self.bot.get_user(self.bot.owner_id)
-        EMBED.set_footer(text=f'Besitzer dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
+        if owner:
+            EMBED.set_footer(text=f'Besitzer dieses Bots ist {owner.name}#{owner.discriminator}',icon_url=owner.avatar_url)
         for kategorie in REGELN:
             EMBED.add_field(name=kategorie,value="```nimrod\n- "+ ("\n- ".join(regel for regel in REGELN[kategorie])) +"```",inline=False)
         msg = await ctx.send(embed=EMBED)
