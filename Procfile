@@ -1,1 +1,1 @@
-rafaelsbot: python rafaelsbot.py
+discordbot: python bot.py
