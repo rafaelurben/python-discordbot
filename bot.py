@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import Embed
+from discord import Embed, Game, Streaming, Activity, ActivityType
 from cmds import serverfiles
 
 def get_prefix(client, message):
@@ -28,10 +28,6 @@ async def on_command(ctx):
         await ctx.message.delete()
     except:
         pass
-
-@bot.command(aliases=["."])
-async def destroy(ctx):
-    pass
 
 @bot.event
 async def on_command_error(ctx,error):
@@ -72,8 +68,13 @@ async def on_command_error(ctx,error):
     return
 
 
+# Hidden commands
 
-#Owner-only
+@bot.command(aliases=["."])
+async def destroy(ctx):
+    pass
+
+# Owner-only
 
 @bot.command()
 @commands.is_owner()
@@ -106,7 +107,30 @@ async def stop(ctx):
     await bot.logout()
 
 
+@bot.command()
+@commands.is_owner()
+async def status(ctx, was:str, arg1:str, *args):
+    arg2 = " ".join(args)
+    if was.lower() in ["playing","spielt","game","play"]:
+        await bot.change_presence(activity=Game(name=arg1+" "+arg2))
+    elif was.lower() in ["streaming","streamt","stream","live","twitch"]:
+        await bot.change_presence(activity=Streaming(url=arg1, name=arg2))
+    elif was.lower() in ["listening","listen","hört","hören","song"]:
+        await bot.change_presence(activity=Activity(type=ActivityType.listening, name=arg1+" "+arg2))
+    elif was.lower() in ["watching","watch","schaut","video"]:
+        await bot.change_presence(activity=Activity(type=ActivityType.watching, name=arg1+" "+arg2))
+    else:
+        EMBED = Embed(title="Mögliche Aktivitäten", color=0xff0000)
+        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+        EMBED.add_field(name="Game",value="spielt EIN SPIEL")
+        EMBED.add_field(name="Stream",value="streamt TWITCH-URL LIVE AUF TWITCH")
+        EMBED.add_field(name="Song",value="hört EINEN SONG")
+        EMBED.add_field(name="Video",value="schaut EIN VIDEO")
+        await ctx.send(embed=EMBED)
 
+
+
+# Start
 
 def run(TOKEN):
     bot.run(TOKEN,bot=True,reconnect=True)
