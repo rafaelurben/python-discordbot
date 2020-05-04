@@ -9,7 +9,7 @@ def get_prefix(client, message):
         prefixes = ["/","!","$",".","-"]
     return commands.when_mentioned_or(*prefixes)(client, message)
 
-bot = commands.Bot(command_prefix=get_prefix,description='Das ist eine Beschreibung!',case_insensitive=True)
+bot = commands.Bot(command_prefix=get_prefix,description='Das ist eine Beschreibung!',case_insensitive=True, activity=Game(name="/help"))
 
 extensionfolder = "cmds"
 extensions = ['basic','support','moderation','games','help','channels','music']
@@ -40,7 +40,8 @@ async def on_command_error(ctx,error):
     elif isinstance(error, commands.MissingRequiredArgument):
         EMBED.add_field(name="Beschreibung",value="Du hast ein benötigtes Argument weggelassen!")
     elif isinstance(error, commands.CommandNotFound):
-        EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
+        #EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
+        print("Command '"+ctx.message.content+"' von '"+ctx.message.author.name+"' wurde nicht gefunden")
     elif isinstance(error, commands.CommandOnCooldown):
         EMBED.add_field(name="Beschreibung",value="Warte, bis du diesen Befehl erneut benutzen kannst!")
     elif isinstance(error, commands.DisabledCommand):
