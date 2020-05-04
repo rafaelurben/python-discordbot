@@ -17,44 +17,46 @@ class Games(commands.Cog):
     )
     async def fortnite(self, ctx, Unterbefehl, platform="", playername=""):
         headers = {'TRN-Api-Key': os.environ.get("TRNAPIKEY")}
-        if Unterbefehl == "store" or Unterbefehl == "shop": #Fortnite Store
-            r = requests.get('https://api.fortnitetracker.com/v1/store', headers=headers)
-            JSON = r.json()
-            EMBED = Embed(title="Fortnite Item Shop", color=self.color)
-            EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-            await ctx.send(embed=EMBED)
-            for i in range(len(JSON)):
-                EMBED = Embed(title=str(JSON[i]["name"]), color=self.color ,description=("Rarity: %s \n vBucks: %s" % (JSON[i]["rarity"],JSON[i]["vBucks"])))
-                EMBED.set_thumbnail(url=str(JSON[i]["imageUrl"]))
+        try:
+            if Unterbefehl == "store" or Unterbefehl == "shop": #Fortnite Store
+                r = requests.get('https://api.fortnitetracker.com/v1/store', headers=headers)
+                JSON = r.json()
+                EMBED = Embed(title="Fortnite Item Shop", color=self.color)
+                EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
+                await ctx.send(embed=EMBED)
+                for i in range(len(JSON)):
+                    EMBED = Embed(title=str(JSON[i]["name"]), color=self.color ,description=("Rarity: %s \n vBucks: %s" % (JSON[i]["rarity"],JSON[i]["vBucks"])))
+                    EMBED.set_thumbnail(url=str(JSON[i]["imageUrl"]))
+                    await ctx.send(embed=EMBED)
+
+            elif Unterbefehl == "challenges" or Unterbefehl == "c": #Fortnite Challenges
+                r = requests.get('https://api.fortnitetracker.com/v1/challenges', headers=headers)
+                JSON = r.json()["items"]
+                EMBED = Embed(title="Fortnite Challenges", color=self.color)
+                EMBED.set_thumbnail(url=str(JSON[0]["metadata"][4]["value"]))
+                for i in range(len(JSON)):
+                    EMBED.add_field(name=(JSON[i]["metadata"][1]["value"]+" ("+JSON[i]["metadata"][3]["value"]+")"),value=(JSON[i]["metadata"][5]["value"]+" Battlepassstars"),inline=False)
+                EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
                 await ctx.send(embed=EMBED)
 
-        elif Unterbefehl == "challenges" or Unterbefehl == "c": #Fortnite Challenges
-            r = requests.get('https://api.fortnitetracker.com/v1/challenges', headers=headers)
-            JSON = r.json()["items"]
-            EMBED = Embed(title="Fortnite Challenges", color=self.color)
-            EMBED.set_thumbnail(url=str(JSON[0]["metadata"][4]["value"]))
-            for i in range(len(JSON)):
-                EMBED.add_field(name=(JSON[i]["metadata"][1]["value"]+" ("+JSON[i]["metadata"][3]["value"]+")"),value=(JSON[i]["metadata"][5]["value"]+" Battlepassstars"),inline=False)
-            EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-            await ctx.send(embed=EMBED)
-
-        elif Unterbefehl == "stats": #Fortnite Stats
-            if not platform == "" and not playername == "":
-                r = requests.get(("https://api.fortnitetracker.com/v1/profile/%s/%s" % (platform,playername)), headers=headers)
-                JSON = r.json()
-                try:
-                    EMBED = Embed(title="Fortnite Stats von "+JSON["epicUserHandle"]+" auf "+JSON["platformNameLong"], color=self.color, description=("Account Id: "+JSON["accountId"]))
-                    for i in range(len(JSON["lifeTimeStats"])):
-                        EMBED.add_field(name=JSON["lifeTimeStats"][i]["key"],value=JSON["lifeTimeStats"][i]["value"])
-                    EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-                    await ctx.send(embed=EMBED)
-                except KeyError:
-                    raise commands.BadArgument(message="Spieler wurde auf der angegebenen Platform nicht gefunden!")
+            elif Unterbefehl == "stats": #Fortnite Stats
+                if not platform == "" and not playername == "":
+                    r = requests.get(("https://api.fortnitetracker.com/v1/profile/%s/%s" % (platform,playername)), headers=headers)
+                    JSON = r.json()
+                    try:
+                        EMBED = Embed(title="Fortnite Stats von "+JSON["epicUserHandle"]+" auf "+JSON["platformNameLong"], color=self.color, description=("Account Id: "+JSON["accountId"]))
+                        for i in range(len(JSON["lifeTimeStats"])):
+                            EMBED.add_field(name=JSON["lifeTimeStats"][i]["key"],value=JSON["lifeTimeStats"][i]["value"])
+                        EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
+                        await ctx.send(embed=EMBED)
+                    except KeyError:
+                        raise commands.BadArgument(message="Spieler wurde auf der angegebenen Platform nicht gefunden!")
+                else:
+                    raise commands.BadArgument(message="Platform und/oder Spieler wurde nicht angegeben!")
             else:
-                raise commands.BadArgument(message="Platform und/oder Spieler wurde nicht angegeben!")
-        else:
-            raise commands.BadArgument(message="Unbekannter Unterbefehl!")
-        return
+                raise commands.BadArgument(message="Unbekannter Unterbefehl!")
+        except KeyError:
+            raise commands.BadArgument(message="Scheinbar ist dieser Befehl nicht richtig konfiguriert.")
 
 
     @commands.command(

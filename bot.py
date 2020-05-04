@@ -40,8 +40,9 @@ async def on_command_error(ctx,error):
     elif isinstance(error, commands.MissingRequiredArgument):
         EMBED.add_field(name="Beschreibung",value="Du hast ein benötigtes Argument weggelassen!")
     elif isinstance(error, commands.CommandNotFound):
-        #EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
+        EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
         print("Command '"+ctx.message.content+"' von '"+ctx.message.author.name+"' wurde nicht gefunden")
+        return # keine Nachricht senden!
     elif isinstance(error, commands.CommandOnCooldown):
         EMBED.add_field(name="Beschreibung",value="Warte, bis du diesen Befehl erneut benutzen kannst!")
     elif isinstance(error, commands.DisabledCommand):
@@ -62,6 +63,7 @@ async def on_command_error(ctx,error):
         EMBED.add_field(name="Beschreibung",value="Du hast die benötigten Rollen nicht, um diesen Befehl auszuführen!")
     elif isinstance(error, commands.NotOwner):
         EMBED.add_field(name="Beschreibung",value="Du bist nicht Besitzer des Bots!")
+        return # keine Nachricht senden!
     else:
         EMBED.add_field(name="Beschreibung",value="Es ist ein unbekannter Fehler aufgetreten! Vermutlich liegt er nicht bei dir, also melde ihn am besten einen Admin.")
         print("Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"' ist ein Fehler aufgetreten: "+str(error))
@@ -81,22 +83,25 @@ async def destroy(ctx):
 
 @bot.command()
 @commands.is_owner()
-async def reload(ctx):
-    print("Reloading...")
+async def reload(ctx, extension:str=None):
     EMBED = Embed(title="Reload", color=0x00ff00)
     EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
     EMBED.add_field(name="Status",value="Reloading...")
     msg = await ctx.send(embed=EMBED)
-    for extension in extensions:
-        try:
-            bot.unload_extension(extensionfolder+"."+extension)
-        except:
-            pass
-        bot.load_extension(extensionfolder+"."+extension)
-    print("Reloaded!")
     EMBED2 = Embed(title="Reload", color=0x00ff00)
     EMBED2.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-    EMBED2.add_field(name="Status",value="Reloaded!")
+    if extension in extensions:
+        bot.unload_extension(extensionfolder+"."+extension)
+        bot.load_extension(extensionfolder+"."+extension)
+        EMBED2.add_field(name="Status",value="Reloaded category "+extension.upper()+"!")
+    else:
+        for extension in extensions:
+            try:
+                bot.unload_extension(extensionfolder+"."+extension)
+            except:
+                pass
+            bot.load_extension(extensionfolder+"."+extension)
+        EMBED2.add_field(name="Status",value="Reloaded all categories!")
     await msg.edit(embed=EMBED2)
 
 
@@ -112,7 +117,7 @@ async def stopbot(ctx):
 
 @bot.command()
 @commands.is_owner()
-async def status(ctx, was:str, arg1:str, *args):
+async def status(ctx, was:str="", arg1:str="", *args):
     arg2 = " ".join(args)
     if was.lower() in ["playing","spielt","game","play"]:
         await bot.change_presence(activity=Game(name=arg1+" "+arg2))
@@ -125,10 +130,10 @@ async def status(ctx, was:str, arg1:str, *args):
     else:
         EMBED = Embed(title="Mögliche Aktivitäten", color=0xff0000)
         EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Game",value="spielt EIN SPIEL")
-        EMBED.add_field(name="Stream",value="streamt TWITCH-URL LIVE AUF TWITCH")
-        EMBED.add_field(name="Song",value="hört EINEN SONG")
-        EMBED.add_field(name="Video",value="schaut EIN VIDEO")
+        EMBED.add_field(name="Game",value="spielt EIN SPIEL", inline=False)
+        EMBED.add_field(name="Stream",value="streamt TWITCH-URL LIVE AUF TWITCH", inline=False)
+        EMBED.add_field(name="Song",value="hört EINEN SONG", inline=False)
+        EMBED.add_field(name="Video",value="schaut EIN VIDEO", inline=False)
         await ctx.send(embed=EMBED)
 
 
