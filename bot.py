@@ -12,7 +12,9 @@ def get_prefix(client, message):
 bot = commands.Bot(command_prefix=get_prefix,description='Das ist eine Beschreibung!',case_insensitive=True)
 
 extensionfolder = "cmds"
-extensions = ['basic','support','moderation','music','games','help','channels']
+extensions = ['basic','support','moderation','games','help','channels','music']
+
+
 
 @bot.event
 async def on_ready():
@@ -99,7 +101,7 @@ async def reload(ctx):
 
 @bot.command()
 @commands.is_owner()
-async def stop(ctx):
+async def stopbot(ctx):
     EMBED = Embed(title="Stop", color=0xff0000)
     EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
     EMBED.add_field(name="Status",value="Gestoppt!")

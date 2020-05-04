@@ -67,23 +67,23 @@ class Basic(commands.Cog):
         await ctx.send(txt)
         return
 
-    @commands.command(
-        brief="Spamt jemanden voll",
-        description="Schickt jemandem ein paar Nachrichten",
-        aliases=["troll"],
-        help="Benutze /spam <User> und der Bot spamt den User voll",
-        usage="<Kanal/Benutzer> [Anzahl<5] [Text]"
-        )
-    async def spam(self,ctx,what: typing.Union[TextChannel,User],anzahl:int=5,*args):
-        anzahl = int(anzahl if anzahl <= 10 else 10)
-        text = str(" ".join(str(i) for i in args))
-        empty = not (len(text) > 0 and not text == (" "*len(text)))
-        for i in range(anzahl):
-            if not empty:
-                await what.send(text+" von "+ctx.author.name+"#"+ctx.author.discriminator)
-            else:
-                await what.send("Spam"+" von "+ctx.author.name+"#"+ctx.author.discriminator)
-        return
+    # @commands.command(
+    #     brief="Spamt jemanden voll",
+    #     description="Schickt jemandem ein paar Nachrichten",
+    #     aliases=["troll"],
+    #     help="Benutze /spam <User> und der Bot spamt den User voll",
+    #     usage="<Kanal/Benutzer> [Anzahl<=10] [Text]"
+    #     )
+    # async def spam(self,ctx,what: typing.Union[TextChannel,User],anzahl:int=5,*args):
+    #     anzahl = int(anzahl if anzahl <= 10 else 10)
+    #     text = str(" ".join(str(i) for i in args))
+    #     empty = not (len(text) > 0 and not text == (" "*len(text)))
+    #     for i in range(anzahl):
+    #         if not empty:
+    #             await what.send(text+" von "+ctx.author.name+"#"+ctx.author.discriminator)
+    #         else:
+    #             await what.send("Spam"+" von "+ctx.author.name+"#"+ctx.author.discriminator)
+    #     return
 
 
     @commands.command(

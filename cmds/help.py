@@ -11,7 +11,7 @@ class Help(commands.Cog):
         name='help',
         brief='Erhalte Hilfe zu Commands',
         description='Hilfe kommt!',
-        aliases=["hilfe","commands","command","?"],
+        aliases=["hilfe","commands","command","?","cmds"],
         help="Benutze /help <Kategorie/Befehl> für genauere Hilfe.",
         usage="<Kategorie/Befehl>"
     )

@@ -35,17 +35,19 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members = True)
     @commands.bot_has_permissions(kick_members = True)
     @commands.guild_only()
-    async def kick(self, ctx, Member: Member, *args):
-        Grund = " ".join(args)
-        if Grund.rstrip() == "":
-            Grund = "Leer"
-        EMBED = Embed(title="Benutzer Gekickt", color=self.color)
-        EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Betroffener",value=Member.mention)
-        EMBED.add_field(name="Grund",value=Grund)
-        await Member.kick(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-        await ctx.send(embed=EMBED)
-        return
+    async def kick(self, ctx, member: Member, *args):
+        if ctx.author.roles[-1] > member.roles[-1]:
+            Grund = " ".join(args)
+            if Grund.rstrip() == "":
+                Grund = "Leer"
+            EMBED = Embed(title="Benutzer Gekickt", color=self.color)
+            EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.add_field(name="Betroffener",value=member.mention)
+            EMBED.add_field(name="Grund",value=Grund)
+            await member.kick(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
+            await ctx.send(embed=EMBED)
+        else:
+            raise commands.BadArgument(message="Deine Rolle ist nicht höher als die des Benutzers, den du kicken wolltest!")
 
 
     @commands.command(
@@ -58,17 +60,19 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members = True)
     @commands.bot_has_permissions(ban_members = True)
     @commands.guild_only()
-    async def ban(self, ctx, Member: Member, *args):
-        Grund = " ".join(args)
-        if Grund.rstrip() == "":
-            Grund = "Leer"
-        EMBED = Embed(title="Benutzer Gebannt", color=self.color)
-        EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Betroffener",value=Member.mention)
-        EMBED.add_field(name="Grund",value=Grund)
-        await Member.ban(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-        await ctx.send(embed=EMBED)
-        return
+    async def ban(self, ctx, member: Member, *args):
+        if ctx.author.roles[-1] > member.roles[-1]:
+            Grund = " ".join(args)
+            if Grund.rstrip() == "":
+                Grund = "Leer"
+            EMBED = Embed(title="Benutzer Gebannt", color=self.color)
+            EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.add_field(name="Betroffener",value=member.mention)
+            EMBED.add_field(name="Grund",value=Grund)
+            await member.ban(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
+            await ctx.send(embed=EMBED)
+        else:
+            raise commands.BadArgument(message="Deine Rolle ist nicht höher als die des Benutzers, den du bannen wolltest!")
 
 
 
