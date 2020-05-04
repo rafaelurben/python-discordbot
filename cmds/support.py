@@ -19,7 +19,7 @@ class Support(commands.Cog):
     async def report(self, ctx, Member: Member, *args):
         Grund = " ".join(args)
         Grund = Grund if Grund.rstrip(" ") else "Leer"
-        serverfiles.createReport(ctx.guild.id,Member.id,Grund,ctx.author.id)
+        serverfiles.createReport(serverid=ctx.guild.id, userid=Member.id, reason=Grund, reportedbyid=ctx.author.id)
         EMBED = Embed(title="Benutzer Gemeldet", color=self.color)
         EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
         EMBED.add_field(name="Betroffener",value=Member.mention)
@@ -41,14 +41,14 @@ class Support(commands.Cog):
         if Member == None:
             EMBED = Embed(title="Server Reports", color=self.color)
             EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            for user in serverfiles.getReports(ctx.guild.id):
-                EMBED.add_field(name=str(user[1])+" Report(s)",value="<@"+str(user[0])+">",inline=False)
+            for user in serverfiles.getReports(serverid=ctx.guild.id):
+                EMBED.add_field(**user)
             await ctx.send(embed=EMBED)
         else:
             EMBED = Embed(title="User Reports", color=self.color, description=("User: "+Member.mention))
             EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            for report in serverfiles.getReports(ctx.guild.id,Member.id):
-                EMBED.add_field(name=str(time.strftime('%d.%m.%Y - %H:%M:%S', time.localtime(report["timestamp"]))),value=str(report["reason"])+" - <@"+str(report["reportedbyid"])+">",inline=False)
+            for report in serverfiles.getReports(serverid=ctx.guild.id, userid=Member.id):
+                EMBED.add_field(**report)
             await ctx.send(embed=EMBED)
         return
 
