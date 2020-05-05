@@ -45,14 +45,9 @@ class Basic(commands.Cog):
     )
     async def ping(self, ctx):
         start = d.timestamp(d.now())
-        EMBED = Embed(title="Aktueller Ping", color=self.color)
-        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Ping",value="Berechnen...")
-        msg = await ctx.send(embed=EMBED)
-        EMBED2 = Embed(title="Aktueller Ping", color=self.color)
-        EMBED2.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED2.add_field(name="Ping",value=str(int(( d.timestamp( d.now() ) - start ) * 1000))+"ms")
-        await msg.edit(embed=EMBED2)
+        msg = await ctx.sendEmbed(title="Aktueller Ping", color=self.color, fields=[("Ping", "Berechnen...")])
+        embed = ctx.getEmbed(title="Aktueller Ping", color=self.color, fields=[("Ping", str(int(( d.timestamp( d.now() ) - start ) * 1000))+"ms")])
+        await msg.edit(embed=embed)
         return
 
     @commands.command(
@@ -62,8 +57,8 @@ class Basic(commands.Cog):
         help="Benutze /say <Text> und der Bot schickt dir den Text zurück",
         usage="<Text>"
         )
-    async def say(self,ctx,Text:str,*args):
-        txt = Text+" "+(" ".join(str(i) for i in args))
+    async def say(self,ctx,Text:str):
+        txt = Text+" "+ctx.getargs()
         await ctx.send(txt)
         return
 
@@ -112,19 +107,14 @@ class Basic(commands.Cog):
         )
     @commands.bot_has_permissions(manage_guild = True)
     async def invite(self,ctx):
-        EMBED = Embed(title="Einladung", color=self.color)
-        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
         try:
             invite = await ctx.guild.vanity_invite()
         except:
             invite = utils.get(list(await ctx.guild.invites()), max_age=0, max_uses=0, temporary=False)
             if not invite:
                 invite = await ctx.channel.create_invite()
-        EMBED.add_field(name="Dieser Server",value=invite.url)
-        EMBED.add_field(name="Bot Server",value="https://rebrand.ly/RUdiscord")
-        EMBED.add_field(name="Bot",value="https://rebrand.ly/RUdiscordbot")
-        await ctx.send(embed=EMBED)
-        return
+        await ctx.sendEmbed(title="Einladungen", color=self.color, fields=[("Dieser Server", invite.url),("Bot Server","https://rebrand.ly/RUdiscord"),("Bot","https://rebrand.ly/RUdiscordbot")])
+
 
 def setup(bot):
     bot.add_cog(Basic(bot))

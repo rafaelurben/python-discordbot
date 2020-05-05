@@ -15,42 +15,54 @@ class Games(commands.Cog):
         help="Beachte bitte, das dies noch die alten Stats sind! (Platformen: pc/xbl/psn)",
         usage="store/challenges/stats <Plattform> <Spielername>"
     )
-    async def fortnite(self, ctx, Unterbefehl, platform="", playername=""):
+    async def fortnite(self, ctx, Unterbefehl:str, platform:str="", playername:str=""):
         headers = {'TRN-Api-Key': os.environ.get("TRNAPIKEY")}
         try:
             if Unterbefehl == "store" or Unterbefehl == "shop": #Fortnite Store
                 r = requests.get('https://api.fortnitetracker.com/v1/store', headers=headers)
                 JSON = r.json()
-                EMBED = Embed(title="Fortnite Item Shop", color=self.color)
-                EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-                await ctx.send(embed=EMBED)
+                await ctx.sendEmbed(
+                    title="Fortnite Item Shop",
+                    color=self.color,
+                    authorurl="http://fortnitetracker.com/",
+                    authorname="Powered by Fortnitetracker"
+                )
                 for i in range(len(JSON)):
-                    EMBED = Embed(title=str(JSON[i]["name"]), color=self.color ,description=("Rarity: %s \n vBucks: %s" % (JSON[i]["rarity"],JSON[i]["vBucks"])))
-                    EMBED.set_thumbnail(url=str(JSON[i]["imageUrl"]))
-                    await ctx.send(embed=EMBED)
+                    await ctx.sendEmbed(
+                        title=str(JSON[i]["name"]),
+                        description=("Rarity: %s \n vBucks: %s" % (JSON[i]["rarity"],JSON[i]["vBucks"])),
+                        color=self.color,
+                        thumbnailurl=str(JSON[i]["imageUrl"])
+                    )
 
             elif Unterbefehl == "challenges" or Unterbefehl == "c": #Fortnite Challenges
                 r = requests.get('https://api.fortnitetracker.com/v1/challenges', headers=headers)
                 JSON = r.json()["items"]
-                EMBED = Embed(title="Fortnite Challenges", color=self.color)
-                EMBED.set_thumbnail(url=str(JSON[0]["metadata"][4]["value"]))
-                for i in range(len(JSON)):
-                    EMBED.add_field(name=(JSON[i]["metadata"][1]["value"]+" ("+JSON[i]["metadata"][3]["value"]+")"),value=(JSON[i]["metadata"][5]["value"]+" Battlepassstars"),inline=False)
-                EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-                await ctx.send(embed=EMBED)
+                await ctx.sendEmbed(
+                    title="Fortnite Challenges",
+                    color=self.color,
+                    fields=[((JSON[i]["metadata"][1]["value"]+" ("+JSON[i]["metadata"][3]["value"]+")"),(JSON[i]["metadata"][5]["value"]+" Battlepassstars")) for i in range(len(JSON))],
+                    thumbnailurl=str(JSON[0]["metadata"][4]["value"]),
+                    authorurl="http://fortnitetracker.com/",
+                    authorname="Powered by Fortnitetracker",
+                    inline=False
+                )
 
             elif Unterbefehl == "stats": #Fortnite Stats
                 if not platform == "" and not playername == "":
                     r = requests.get(("https://api.fortnitetracker.com/v1/profile/%s/%s" % (platform,playername)), headers=headers)
                     JSON = r.json()
                     try:
-                        EMBED = Embed(title="Fortnite Stats von "+JSON["epicUserHandle"]+" auf "+JSON["platformNameLong"], color=self.color, description=("Account Id: "+JSON["accountId"]))
-                        for i in range(len(JSON["lifeTimeStats"])):
-                            EMBED.add_field(name=JSON["lifeTimeStats"][i]["key"],value=JSON["lifeTimeStats"][i]["value"])
-                        EMBED.set_author(url="http://fortnitetracker.com/",name="*Powered by Fortnitetracker*")
-                        await ctx.send(embed=EMBED)
-                    except KeyError:
-                        raise commands.BadArgument(message="Spieler wurde auf der angegebenen Platform nicht gefunden!")
+                        await ctx.sendEmbed(
+                            title="Fortnite Stats von "+JSON["epicUserHandle"]+" auf "+JSON["platformNameLong"],
+                            description=("Account Id: "+JSON["accountId"]),
+                            color=self.color,
+                            fields=[(JSON["lifeTimeStats"][i]["key"], JSON["lifeTimeStats"][i]["value"]) for i in range(len(JSON["lifeTimeStats"]))],
+                            authorurl="http://fortnitetracker.com/",
+                            authorname="Powered by Fortnitetracker"
+                        )
+                    except KeyError as e:
+                        raise commands.BadArgument(message="Spieler wurde auf der angegebenen Platform nicht gefunden! Error: "+str(e))
                 else:
                     raise commands.BadArgument(message="Platform und/oder Spieler wurde nicht angegeben!")
             else:
@@ -94,10 +106,7 @@ class Games(commands.Cog):
 
         if Unterbefehl == "uuid" or Unterbefehl == "id": #Minecraft UUID
             JSON = getProfile(Parameter)
-            EMBED = Embed(title="Minecraft UUID", color=self.color)
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="UUID",value=JSON["id"],inline=False)
-            EMBED.add_field(name="Aktueller Name",value=JSON["name"],inline=False)
+            EMBED = ctx.getEmbed(title="Minecraft UUID", color=self.color, fields=[("UUID", JSON["id"], False),("Aktueller Name", JSON["name"], False)])
             if "legacy" in JSON:
                 EMBED.add_field(name="Account",value="Alter Account")
             if "demo" in JSON:
@@ -106,8 +115,7 @@ class Games(commands.Cog):
 
         elif Unterbefehl == "namen" or Unterbefehl == "names" or Unterbefehl == "name": #Fortnite Challenges
             JSON = getProfiles(Parameter)
-            EMBED = Embed(title="Minecraft Namen", color=self.color, description="Sortierung: Von neu bis alt.")
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED = ctx.getEmbed(title="Minecraft Namen", color=self.color, description="Sortierung: Von neu bis alt.")
             for i in JSON[::-1]:
                 if "changedToAt" in i:
                     EMBED.add_field(name="Name seit "+str(datetime.datetime.fromtimestamp(int(i["changedToAt"])/1000).strftime('%d.%m.%Y %H:%M:%S')),value=i["name"], inline=False)
@@ -117,10 +125,7 @@ class Games(commands.Cog):
 
         elif Unterbefehl == "skin": #Fortnite Stats
             JSON = getSkin(Parameter)
-            EMBED = Embed(title="Minecraft Skin", color=self.color)
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Aktueller Name",value=JSON["name"])
-            EMBED.add_field(name="UUID",value=JSON["id"])
+            EMBED = ctx.getEmbed(title="Minecraft Skin", color=self.color, fields=[("Aktueller Name", JSON["name"]), ("UUID", JSON["id"])])
             for i in JSON["properties"]:
                 base64_message = i["value"]
                 base64_bytes = base64_message.encode('ascii')
@@ -136,11 +141,9 @@ class Games(commands.Cog):
 
 
         elif Unterbefehl == "spieler" or Unterbefehl == "player":
-            EMBED = Embed(title="Minecraft Spieler", color=self.color)
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
             JSON = getProfile(Parameter)
             UUID = JSON["id"]
-            EMBED.add_field(name="UUID",value=UUID)
+            EMBED = ctx.getEmbed(title="Minecraft Spieler", color=self.color, fields=[("UUID", UUID)], inline=False)
             if "legacy" in JSON:
                 EMBED.add_field(name="Account",value="Alter Account")
             if "demo" in JSON:

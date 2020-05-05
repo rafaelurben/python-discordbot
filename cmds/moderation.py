@@ -35,17 +35,13 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members = True)
     @commands.bot_has_permissions(kick_members = True)
     @commands.guild_only()
-    async def kick(self, ctx, member: Member, *args):
+    async def kick(self, ctx, member: Member):
         if ctx.author.roles[-1] > member.roles[-1]:
-            Grund = " ".join(args)
+            Grund = ctx.getargs()
             if Grund.rstrip() == "":
                 Grund = "Leer"
-            EMBED = Embed(title="Benutzer Gekickt", color=self.color)
-            EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Betroffener",value=member.mention)
-            EMBED.add_field(name="Grund",value=Grund)
             await member.kick(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-            await ctx.send(embed=EMBED)
+            await ctx.sendEmbed(title="Benutzer Gekickt", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
         else:
             raise commands.BadArgument(message="Deine Rolle ist nicht höher als die des Benutzers, den du kicken wolltest!")
 
@@ -60,17 +56,13 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members = True)
     @commands.bot_has_permissions(ban_members = True)
     @commands.guild_only()
-    async def ban(self, ctx, member: Member, *args):
+    async def ban(self, ctx, member: Member):
         if ctx.author.roles[-1] > member.roles[-1]:
-            Grund = " ".join(args)
+            Grund = ctx.getargs()
             if Grund.rstrip() == "":
                 Grund = "Leer"
-            EMBED = Embed(title="Benutzer Gebannt", color=self.color)
-            EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Betroffener",value=member.mention)
-            EMBED.add_field(name="Grund",value=Grund)
             await member.ban(reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-            await ctx.send(embed=EMBED)
+            await ctx.sendEmbed(title="Benutzer Gebannt", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
         else:
             raise commands.BadArgument(message="Deine Rolle ist nicht höher als die des Benutzers, den du bannen wolltest!")
 
@@ -86,23 +78,18 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members = True)
     @commands.bot_has_permissions(ban_members = True)
     @commands.guild_only()
-    async def unban(self, ctx, userid: int, *args):
-        Grund = " ".join(args)
+    async def unban(self, ctx, userid: int):
+        Grund = ctx.getargs()
         if Grund.rstrip() == "":
             Grund = "Leer"
         User = self.bot.get_user(userid)
-        if User == None:
+        if User is None:
             raise commands.BadArgument(message="Benutzer wurde nicht gefunden!")
-        EMBED = Embed(title="Benutzer Entbannt", color=self.color)
-        EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Betroffener",value=User.mention)
-        EMBED.add_field(name="Grund",value=Grund)
         try:
             await ctx.guild.unban(User,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-            await ctx.send(embed=EMBED)
+            await ctx.sendEmbed(title="Benutzer Entbannt", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
         except:
             raise commands.BadArgument(message="Benutzer wurde nicht gefunden!")
-        return
 
 
     @commands.command(
@@ -113,32 +100,22 @@ class Moderation(commands.Cog):
         usage="<Member> [Grund]"
         )
     @commands.guild_only()
-    async def kill(self, ctx, Member: Member, *args):
-        Grund = " ".join(args)
+    async def kill(self, ctx, member: Member):
+        Grund = ctx.getargs()
         if Grund.rstrip() == "":
             Grund = "Leer"
-        VoiceState = Member.voice
+        VoiceState = member.voice
         if VoiceState:
             if VoiceState.channel.permissions_for(ctx.author).move_members:
                 if VoiceState.channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).move_members:
-                    await Member.edit(voice_channel=None,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-                    EMBED = Embed(title="Benutzer Getötet", color=self.color)
-                    EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                    EMBED.add_field(name="Betroffener",value=Member.mention)
-                    EMBED.add_field(name="Grund",value=Grund)
-                    await ctx.send(embed=EMBED)
+                    await member.edit(voice_channel=None,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
+                    await ctx.sendEmbed(title="Benutzer Getötet", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
                 else:
                     raise commands.BotMissingPermissions([])
             else:
                 raise commands.MissingPermissions([])
         else:
-            EMBED = Embed(title="Töten fehlgeschlagen", color=0xff0000)
-            EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Betroffener",value=Member.mention)
-            EMBED.add_field(name="Grund",value=Grund)
-            EMBED.add_field(name="Beschreibung",value="Benutzer befindet sich nicht in einem Sprachkanal!")
-            await ctx.send(embed=EMBED)
-        return
+            raise commands.BadArgument(message="Der Benutzer befindet sich nicht in einem Sprachkanal.")
 
 
 def setup(bot):

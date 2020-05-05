@@ -64,12 +64,7 @@ class Channels(commands.Cog):
         else:
             overwrites = { ctx.guild.default_role: PermissionOverwrite(read_messages=False), ctx.author: PermissionOverwrite(read_messages=True,send_messages=True) }
             newchannel = await category.create_text_channel(name=(ctx.author.name+"-"+ctx.author.discriminator),overwrites=overwrites, reason="Benutzer hat den Textkanal erstellt")
-            EMBED = Embed(title="Textkanal erstellt!", color=self.color)
-            EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Kanal",value="<#"+str(newchannel.id)+">")
-            await ctx.send(embed=EMBED)
-        return
-
+            await ctx.sendEmbed(title="Textkanal erstellt", color=self.color, fields=[("Kanal", newchannel.mention)])
 
 
     @commands.command(
@@ -86,10 +81,7 @@ class Channels(commands.Cog):
         channel = utils.get(ctx.guild.text_channels, name=(ctx.author.name+"-"+ctx.author.discriminator), category=category)
         if channel:
             await channel.delete(reason="Benutzer hat den Textkanal gelöscht")
-            EMBED = Embed(title="Textkanal gelöscht!", color=self.color)
-            EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-            EMBED.add_field(name="Server",value=ctx.guild.name)
-            await ctx.author.send(embed=EMBED)
+            await ctx.sendEmbed(title="Textkanal gelöscht", color=self.color, fields=[("Server", ctx.guild.name)])
         else:
             raise commands.BadArgument(message="Du hattest gar keinen Textkanal!")
         return
@@ -116,7 +108,7 @@ class Channels(commands.Cog):
     #         overwrites = { ctx.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), ctx.author: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True,mute_members=True) }
     #         newchannel = await category.create_voice_channel(name=(ctx.author.name+"#"+ctx.author.discriminator),overwrites=overwrites,reason="Benutzer hat den Sprachkanal erstellt")
     #         EMBED = Embed(title="Sprachkanal erstellt!", color=self.color)
-    #         EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+    #         EMBED.set_footer(text=f'Kanal von {ctx.author.name}',icon_url=ctx.author.avatar_url)
     #         await ctx.send(embed=EMBED)
     #         if ctx.author.voice:
     #             await ctx.author.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
@@ -137,7 +129,7 @@ class Channels(commands.Cog):
     #     if channel:
     #         await channel.delete(reason="Vom Benutzer gelöscht")
     #         EMBED = Embed(title="Sprachkanal gelöscht!", color=self.color)
-    #         EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+    #         EMBED.set_footer(text=f'Kanal von {ctx.author.name}',icon_url=ctx.author.avatar_url)
     #         EMBED.add_field(name="Server",value=ctx.guild.name)
     #         await ctx.send(embed=EMBED)
     #     else:
@@ -161,32 +153,18 @@ class Channels(commands.Cog):
             raise commands.BadArgument(message="Du hast noch keinen Sprachkanal!")
         else:
             await channel.set_permissions(wer,reason="Benuter hat Benutzer/Rolle eingeladen",read_messages=True,connect=True,speak=True)
-            if type(wer) == Member:
-                EMBED = Embed(title="Benutzer zu Sprachkanal eingeladen", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="Benutzer",value=wer.mention)
-                await ctx.send(embed=EMBED)
-                EMBED = Embed(title="Benutzer zu Sprachkanal eingeladen", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="Server",value=ctx.guild.name)
-                EMBED.add_field(name="Benutzer",value=wer.mention)
+            if isinstance(wer, Member):
+                await ctx.sendEmbed(title="Benutzer zu Sprachkanal eingeladen", color=self.color, fields=[("Benutzer", wer.mention)])
+                EMBED = ctx.getEmbed(title="Benutzer zu Sprachkanal eingeladen", color=self.color, fields=[("Server", ctx.guild.name),("Benutzer", wer.mention)])
                 await ctx.author.send(embed=EMBED)
-                EMBED = Embed(title="Du wurdest zu einem Sprachkanal eingeladen", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="Server",value=ctx.guild.name)
-                EMBED.add_field(name="Von",value=ctx.author.mention)
-                await wer.send(embed=EMBED)
-            elif type(wer) == Role:
-                EMBED = Embed(title="Rolle zu Sprachkanal eingeladen", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="Rolle",value=wer.name)
-                await ctx.send(embed=EMBED)
-                EMBED = Embed(title="Rolle zu Sprachkanal eingeladen", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-                EMBED.add_field(name="Server",value=ctx.guild.name)
-                EMBED.add_field(name="Rolle",value=wer.name)
+                EMBED2 = ctx.getEmbed(title="Du wurdest zu einem Sprachkanal eingeladen", color=self.color, fields=[("Server", ctx.guild.name),("Von", ctx.author.mention)])
+                if not wer.bot:
+                    await wer.send(embed=EMBED2)
+            elif isinstance(wer, Role):
+                await ctx.sendEmbed(title="Rolle zu Sprachkanal eingeladen", color=self.color, fields=[("Rolle", wer.name)])
+                EMBED = ctx.getEmbed(title="Rolle zu Sprachkanal eingeladen", color=self.color, fields=[("Server", ctx.guild.name),("Rolle", wer.name)])
                 await ctx.author.send(embed=EMBED)
-                await ctx.send("Alle mit der Rolle "+wer.mention+" wurden von "+ctx.author.mention+" zu seinem Sprachkanal eingeladen.")
+                await ctx.send("Alle mit der Rolle "+wer.mention+" wurden von "+ctx.author.mention+" zu seinem/ihrem Sprachkanal eingeladen.")
         return
 
 

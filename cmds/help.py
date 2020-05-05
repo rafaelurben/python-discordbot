@@ -16,10 +16,7 @@ class Help(commands.Cog):
         usage="<Kategorie/Befehl>"
     )
     async def help(self, ctx, search:str='*'):
-        help_embed = Embed(title='Hilfe',color=self.color)
-        #help_embed.set_thumbnail(url=ctx.author.avatar_url)
-        help_embed.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        help_embed.description = ""
+        help_embed = ctx.getEmbed(title='Hilfe', color=self.color, inline=False)
 
         def addCog(cog):
             cog_commands = cog.get_commands()

@@ -16,15 +16,11 @@ class Support(commands.Cog):
         usage="<Member> [Grund]"
         )
     @commands.guild_only()
-    async def report(self, ctx, Member: Member, *args):
-        Grund = " ".join(args)
+    async def report(self, ctx, member: Member):
+        Grund = ctx.getargs()
         Grund = Grund if Grund.rstrip(" ") else "Leer"
-        serverfiles.createReport(serverid=ctx.guild.id, userid=Member.id, reason=Grund, reportedbyid=ctx.author.id)
-        EMBED = Embed(title="Benutzer Gemeldet", color=self.color)
-        EMBED.set_footer(text=f'Auftraggeber: {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
-        EMBED.add_field(name="Betroffener",value=Member.mention)
-        EMBED.add_field(name="Grund",value=Grund)
-        await ctx.send(embed=EMBED)
+        serverfiles.createReport(serverid=ctx.guild.id, userid=member.id, reason=Grund, reportedbyid=ctx.author.id)
+        await ctx.sendEmbed(title="Benutzer Gemeldet", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
         return
 
 
@@ -40,13 +36,13 @@ class Support(commands.Cog):
     async def reports(self, ctx, Member:Member=None):
         if Member == None:
             EMBED = Embed(title="Server Reports", color=self.color)
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.set_footer(text=f'Angefordert von {ctx.author.name}',icon_url=ctx.author.avatar_url)
             for user in serverfiles.getReports(serverid=ctx.guild.id):
                 EMBED.add_field(**user)
             await ctx.send(embed=EMBED)
         else:
             EMBED = Embed(title="User Reports", color=self.color, description=("User: "+Member.mention))
-            EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+            EMBED.set_footer(text=f'Angefordert von {ctx.author.name}',icon_url=ctx.author.avatar_url)
             for report in serverfiles.getReports(serverid=ctx.guild.id, userid=Member.id):
                 EMBED.add_field(**report)
             await ctx.send(embed=EMBED)
