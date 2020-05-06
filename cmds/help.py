@@ -19,6 +19,8 @@ class Help(commands.Cog):
         help_embed = ctx.getEmbed(title='Hilfe', color=self.color, inline=False)
 
         def addCog(cog):
+            if cog.qualified_name in ["Owneronly"]:
+                pass
             cog_commands = cog.get_commands()
             commands_list = ''
             for comm in cog_commands:
