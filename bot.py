@@ -161,11 +161,12 @@ def run(TOKEN):
 
 import sys, os
 
-if 'DISCORD_RAFAELSBOT' in os.environ:
-    run(os.environ.get('DISCORD_RAFAELSBOT'))
+if __name__ == "__main__":
+    if 'DISCORD_RAFAELSBOT' in os.environ:
+        run(os.environ.get('DISCORD_RAFAELSBOT'))
 
-elif len(sys.argv) > 1:
-    run(sys.argv[1])
-else:
-    print("No TOKEN found! Enter it manually...")
-    run(input("TOKEN: "))
+    elif len(sys.argv) > 1:
+        run(sys.argv[1])
+    else:
+        print("No TOKEN found! Enter it manually...")
+        run(input("TOKEN: "))

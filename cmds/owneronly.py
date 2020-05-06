@@ -1,5 +1,6 @@
 from discord.ext import commands
 from discord import Game, Streaming, Activity, ActivityType, Status
+from bot import extensions, extensionfolder
 
 
 class Owneronly(commands.Cog):
@@ -30,11 +31,11 @@ class Owneronly(commands.Cog):
                 except:
                     pass
                 try:
-                    bot.load_extension(extensionfolder+"."+extension)
+                    self.bot.load_extension(extensionfolder+"."+extension)
                 except commands.errors.ExtensionAlreadyLoaded:
                     pass
             EMBED.add_field(name="Status",value="Reloaded all categories!")
-        await msg.edit(embed=EMBED2)
+        await msg.edit(embed=EMBED)
 
 
     @commands.command()
@@ -70,10 +71,10 @@ class Owneronly(commands.Cog):
 
         if status is not None and activity is not None:
             await ctx.bot.change_presence(status=status, activity=activity)
-        elif status is not None:
-            await ctx.bot.change_presence(status=status)
-        elif activity is not None:
-            await ctx.bot.change_presence(activity=activity)
+        elif status is not None and activity is None:
+            await ctx.bot.change_presence(status=status, activity=None)
+        elif activity is not None and status is None:
+            await ctx.bot.change_presence(status=None,   activity=activity)
         else:
             await ctx.sendEmbed(title="Mögliche Status", color=0xff0000, inline=False, description="Syntax: /status <STATUS> [AKTIVITÄT] [ARGUMENTE]",
                 fields=[
