@@ -69,12 +69,8 @@ class Owneronly(commands.Cog):
         elif was2.lower() in ["watching","watch","schaut","video"]:
             activity=Activity(type=ActivityType.watching, name=arg1+" "+arg2)
 
-        if status is not None and activity is not None:
+        if status is not None or activity is not None:
             await ctx.bot.change_presence(status=status, activity=activity)
-        elif status is not None and activity is None:
-            await ctx.bot.change_presence(status=status, activity=None)
-        elif activity is not None and status is None:
-            await ctx.bot.change_presence(status=None,   activity=activity)
         else:
             await ctx.sendEmbed(title="Mögliche Status", color=0xff0000, inline=False, description="Syntax: /status <STATUS> [AKTIVITÄT] [ARGUMENTE]",
                 fields=[
@@ -87,7 +83,7 @@ class Owneronly(commands.Cog):
             await ctx.sendEmbed(title="Mögliche Aktivitäten", color=0xff0000, inline=False, description="Syntax: /status <STATUS> [AKTIVITÄT] [ARGUMENTE]",
                 fields=[
                     ("Game",    "spielt <EIN SPIEL>"),
-                    ("Stream",  "streamt <TWITCH-URL> <LIVE AUF TWITCH>"),
+                    ("Stream",  "streamt <TWITCH-NAME> <LIVE AUF TWITCH>"),
                     ("Song",    "hört <SONG>"),
                     ("Video",   "schaut <VIDEO>")
                 ]

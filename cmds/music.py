@@ -1,64 +1,32 @@
 from discord.ext import commands
 from discord import Embed, User, Member, opus, FFmpegPCMAudio, PCMVolumeTransformer, VoiceChannel
 from fuzzywuzzy import process
-import os, asyncio, youtube_dl
+import os, asyncio
 
-from . import serverfiles
-
-filespath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "files")
+###
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
+###
+
+filespath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "files")
+memespath = os.path.join(filespath, "memes")
+
 # opus.load_opus('opus')
-
-# Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
-
-
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
-}
 
 ffmpeg_options = {
     'options': '-vn',
     'executable': os.path.join(filespath,"ffmpeg.exe")
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+radios = {
+    "swisspop": "http://www.radioswisspop.ch/live/mp3.m3u",
+    "nrjbern":  "https://energybern.ice.infomaniak.ch/energybern-high.mp3",
+}
 
 
-class YTDLSource(PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
-        super().__init__(source, volume)
-
-        self.data = data
-
-        self.title = data.get('title')
-        self.url = data.get('url')
-
-    @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
-        loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
-
-        filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 #####
 
@@ -70,35 +38,6 @@ class Music(commands.Cog):
     # sich in Entwicklung befindende Befehle
 
     if os.getenv("DEBUG", False):
-        @commands.command(
-            name='meme',
-            brief='Spiele Memes',
-            description='Spiele Memes von einer Audiodatei!',
-            aliases=[],
-            help="Benutze /meme <Name> um einen Meme abzuspielen.",
-            usage="<Suche>"
-        )
-        @commands.guild_only()
-        async def meme(self, ctx, search:str="schulgong.wav"):
-            search = search+" "+ctx.getargs().rstrip("-l")
-            filenames = list(os.listdir(os.path.join(str(filespath), "sounds")))
-
-            result = process.extractOne(search, filenames)
-            filename = result[0]
-
-            print(search, result)
-
-            if not (ctx.author.voice and ctx.author.voice.channel and ctx.author.voice.channel.guild == ctx.guild):
-                raise commands.CommandError(message="Du musst dich in einem Sprachkanal befinden!")
-
-            elif result[1] >= 75:
-                audio = PCMVolumeTransformer(FFmpegPCMAudio(source=os.path.join(filespath, "sounds", filename), **ffmpeg_options))
-
-                ctx.voice_client.play(audio, after=lambda e: print('Player error: %s' % e) if e else None)
-                await ctx.sendEmbed(title="Spielt jetzt", color=self.color, fields=[("Meme",str(filename).split(".")[0])])
-                #raise commands.BadArgument(message="Ich konnte die Audiodatei {} nicht abspielen.".format(filename))
-            else:
-                raise commands.BadArgument(message="Es wurden keine mit '{}' übereinstimmende Audiodatei gefunden.".format(search))
 
         @commands.command(
             name='memes',
@@ -110,14 +49,168 @@ class Music(commands.Cog):
         )
         @commands.guild_only()
         async def memes(self, ctx):
-            filenames = list(os.listdir(os.path.join(str(filespath), "sounds")))
+            filenames = list(os.listdir(memespath))
             for chunk in list(chunks(filenames, 25)):
-                fields = []
-                for filename in chunk:
-                    fields.append(("Meme", filename.split(".")[0]))
-                await ctx.sendEmbed(title="Memes ("+str(len(chunk))+") - Gesamt: "+str(len(filenames)), color=self.color, fields=fields)
+                await ctx.sendEmbed(
+                    title="Memes ("+str(len(chunk))+") - Gesamt: "+str(len(filenames)),
+                    color=self.color,
+                    fields=[("Meme", filename.split(".")[0]) for filename in chunk]
+                )
+
+
+        @commands.command(
+            name='meme',
+            brief='Spiele Memes',
+            description='Spiele Memes von einer Audiodatei!',
+            aliases=[],
+            help="Benutze /meme <Name> um einen Meme abzuspielen.",
+            usage="<Suche>"
+        )
+        @commands.guild_only()
+        async def meme(self, ctx, search:str="schulgong.wav"):
+            search = search+" "+ctx.getargs()
+            filenames = list(os.listdir(memespath))
+
+            result = process.extractOne(search, filenames)
+            filename = result[0]
+
+            print(search, result)
+
+            if result[1] >= 75:
+                player = PCMVolumeTransformer(FFmpegPCMAudio(source=os.path.join(memespath, filename), **ffmpeg_options))
+
+                if ctx.voice_client.is_playing():
+                    ctx.voice_client.stop()
+
+                ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+                await ctx.sendEmbed(title="Memetime!", color=self.color, fields=[("Meme",str(filename).split(".")[0])])
+            else:
+                raise commands.BadArgument(message="Es wurden keine mit '{}' übereinstimmende Audiodatei gefunden.".format(search))
 
         # from example
+
+        @commands.command(
+            name='play',
+            brief='Spiele Musik',
+            description='Spiele Musik von Youtube und anderen Plattformen!',
+            aliases=["yt","youtube","spotify"],
+            help="Benutze /play <Url/Suche> um einen Song abzuspielen.",
+            usage="<Url/Suche>"
+        )
+        @commands.guild_only()
+        async def play(self, ctx):
+            url = ctx.getargs()
+            async with ctx.typing():
+                player = list(await ctx.data.musicqueue.createYoutubePlayer(url, loop=self.bot.loop))[0]
+                if ctx.voice_client.is_playing():
+                    ctx.data.musicqueue.addPlayer(player)
+                    await player.send(ctx, status="Song zur Playlist hinzugefügt!")
+                else:
+                    player.play(ctx)
+                    await player.send(ctx)
+
+
+        @commands.command(
+            name='stream',
+            brief='Streame einen Stream',
+            description='Streame einen Stream von Twitch oder YouTube',
+            aliases=[],
+            help="Benutze /stream <Url/Suche> den einen Stream zu streamen.",
+            usage="<Url/Suche>"
+        )
+        @commands.guild_only()
+        async def stream(self, ctx):
+            url = ctx.getargs()
+            if url in radios:
+                url = radios[url]
+
+            async with ctx.typing():
+                player = list(await ctx.data.musicqueue.createYoutubePlayer(url, loop=self.bot.loop, stream=True))[0]
+
+                if ctx.voice_client.is_playing():
+                    ctx.voice_client.stop()
+
+                player.play(ctx)
+                await player.send(ctx, "Stream wird direkt wiedergegeben!")
+
+        @commands.command(
+            name='nowplaying',
+            brief='Was läuft gerade?',
+            description='Sieh, was gerade läuft',
+            aliases=["np"],
+            help="Benutze /np um zu sehen, was aktuell läuft.",
+            usage=""
+        )
+        @commands.guild_only()
+        async def nowplaying(self, ctx):
+            await ctx.data.musicqueue.sendNowPlaying(ctx)
+
+        @commands.command(
+            name='pause',
+            brief='Pausiere Musik',
+            description='Pausiere die aktuelle Musik',
+            aliases=[],
+            help="Benutze /pause um die aktuelle Musik zu pausieren.",
+            usage=""
+        )
+        @commands.guild_only()
+        async def pause(self, ctx):
+            if ctx.voice_client and ctx.voice_client.is_playing():
+                ctx.voice_client.pause()
+                await ctx.sendEmbed(title="Musik pausiert", color=self.color)
+
+        @commands.command(
+            name='resume',
+            brief='Führe Musik fort',
+            description='Hebe die Pausierung der aktuellen Musik auf.',
+            aliases=[],
+            help="Benutze /resume um die aktuelle Musik weiter zu spielen.",
+            usage=""
+        )
+        @commands.guild_only()
+        async def resume(self, ctx):
+            if ctx.voice_client and ctx.voice_client.is_paused():
+                ctx.voice_client.resume()
+                await ctx.sendEmbed(title="Pausierung aufgehoben", color=self.color)
+
+        @commands.command(
+            name='skip',
+            brief='Überspringe Musik',
+            description='Überspringe aktuelle Musik',
+            aliases=[],
+            help="Benutze /skip um den aktuellen Song zu überspringen.",
+            usage="<Url/Suche>"
+        )
+        @commands.guild_only()
+        async def skip(self, ctx):
+            async with ctx.typing():
+                if ctx.voice_client is not None and ctx.voice_client.is_playing():
+                    ctx.voice_client.stop()
+                if ctx.voice_client is not None:
+                    ctx.data.musicqueue.playNext(ctx)
+                    await ctx.data.musicqueue.sendNowPlaying(ctx, "Wird aktuell gespielt!")
+                else:
+                    raise commands.CommandError(message="Es wurde gar kein Song abgespielt.")
+
+        @commands.command(
+            name='volume',
+            brief='Ändere die Lautstärke',
+            description='Ändere die Lautstärke des Bots',
+            aliases=["lautstärke"],
+            help="Benutze /volume <1-200> um die Lautstärke des Bots zu ändern.",
+            usage="<1-200>"
+        )
+        @commands.guild_only()
+        async def volume(self, ctx, newvolume: float):
+            if ctx.voice_client is None:
+                raise commands.CommandError("Der Bot ist nicht mit einem Sprachkanal verbunden.")
+            elif not ctx.voice_client.source:
+                raise commands.CommandError("Der Bot scheint aktuell nichts abzuspielen.")
+
+            oldvolume = ctx.voice_client.source.volume * 100
+            ctx.voice_client.source.volume = newvolume / 100
+
+            await ctx.sendEmbed(title="Lautstärke geändert", color=self.color, fields=[("Zuvor", str(oldvolume)+"%"),("Jetzt",str(newvolume)+"%")])
 
         @commands.command(
             name='stop',
@@ -132,87 +225,23 @@ class Music(commands.Cog):
             if ctx.voice_client:
                 await ctx.voice_client.disconnect()
             else:
-                raise commands.BadArgument(message="Der Bot war in gar keinem Sprachkanal!")
-
-        @commands.command(
-            name='play',
-            brief='Spiele Musik',
-            description='Spiele Musik von Youtube und anderen Plattformen!',
-            aliases=["yt","youtube","spotify"],
-            help="Benutze /play <Url/Suche> um einen Song abzuspielen.",
-            usage="<Url/Suche>"
-        )
-        async def play(self, ctx):
-            url = ctx.getargs()
-            async with ctx.typing():
-                player = await YTDLSource.from_url(url.rstrip("-l"), loop=self.bot.loop)
-                ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-
-            await ctx.sendEmbed(title="Spielt jetzt", color=self.color, fields=[("Song", str(player.title))])
-
-        @commands.command(
-            name='stream',
-            brief='Streame einen Stream',
-            description='Streame einen Stream von Twitch oder YouTube',
-            aliases=[],
-            help="Benutze /stream <Url/Suche> den einen Stream zu streamen.",
-            usage="<Url/Suche>"
-        )
-        async def stream(self, ctx):
-            url = ctx.getargs()
-
-            async with ctx.typing():
-                player = await YTDLSource.from_url(url.rstrip("-l"), loop=self.bot.loop, stream=True)
-                ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-
-            await ctx.sendEmbed(title="Spielt jetzt", color=self.color, fields=[("Stream", str(player.title))])
-
-        @commands.command(
-            name='volume',
-            brief='Ändere die Lautstärke',
-            description='Ändere die Lautstärke des Bots',
-            aliases=["lautstärke"],
-            help="Benutze /volume <1-200> um die Lautstärke des Bots zu ändern.",
-            usage="<1-200>"
-        )
-        async def volume(self, ctx, volume: int):
-            if ctx.voice_client is None:
-                raise commands.CommandError("Der Bot ist nicht mit einem Sprachkanal verbunden.")
-            elif not ctx.voice_client.source:
-                raise commands.CommandError("Der Bot scheint aktuell nichts abzuspielen.")
-
-            old = ctx.voice_client.source.volume * 100
-            ctx.voice_client.source.volume = volume / 100
-
-            await ctx.sendEmbed(title="Lautstärke geändert", color=self.color, fields=[("Zuvor", str(old)+"%"),("Jetzt",str(volume)+"%")])
-
+                raise commands.CommandError(message="Der Bot war in gar keinem Sprachkanal!")
 
         @meme.before_invoke
         @play.before_invoke
         @stream.before_invoke
+        @nowplaying.before_invoke
+        @skip.before_invoke
+        @volume.before_invoke
         async def autojoin(self, ctx):
-            if ctx.author.voice:
+            if ctx.author.voice and ctx.author.voice.channel.guild == ctx.guild:
                 if ctx.voice_client is None:
                     await ctx.author.voice.channel.connect()
-                elif ctx.voice_client.is_playing():
-                    ctx.voice_client.stop()
-                    await ctx.voice_client.move_to(ctx.author.voice.channel)
-                else:
-                    await ctx.voice_client.move_to(ctx.author.voice.channel)
+                #elif ctx.voice_client.is_playing():
+                    #ctx.voice_client.stop()
+                await ctx.voice_client.move_to(ctx.author.voice.channel)
             else:
-                raise commands.CommandError("Du bist mit keinem Sprachkanal verbunden!")
-
-        @meme.after_invoke
-        @play.after_invoke
-        @stream.after_invoke
-        async def autoleave(self, ctx):
-            if "-l" in str(ctx.message.content):
-                try:
-                    while ctx.voice_client.is_playing():
-                        await asyncio.sleep(0.2)
-                    await ctx.voice_client.disconnect()
-                except AttributeError:
-                    pass
+                raise commands.CommandError("Du bist mit keinem Sprachkanal in diesem Server verbunden!")
 
 
 

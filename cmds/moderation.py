@@ -15,13 +15,15 @@ class Moderation(commands.Cog):
         help="Gib einfach /clearchat ein und der Chat wird bald leer sein",
         usage=""
         )
-    @commands.cooldown(1,5.0,commands.BucketType.channel)
+    @commands.cooldown(1,2.0,commands.BucketType.channel)
     @commands.has_permissions(manage_messages = True)
     @commands.bot_has_permissions(manage_messages = True)
     @commands.guild_only()
     async def clearchat(self,ctx):
-        await ctx.message.channel.purge()
-        return
+        try:
+            await ctx.message.channel.purge()
+        except Exception as e:
+            pass
 
 
 

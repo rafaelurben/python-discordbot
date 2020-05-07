@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import Embed, Game, Streaming, Activity, ActivityType, Status
+from discord import Embed, Activity, ActivityType, Status, Streaming, Game
 from cmds import serverfiles
 
 #
@@ -25,17 +25,23 @@ class MyContext(commands.Context):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ## manupulate ctx for --sudo command
+        self.data = serverfiles.Server.getServer(self.guild.id)
+
+        ## manupulate ctx for --sudo arg
         if int(self.author.id) in sudo_ids:
             if sudo_seperator in self.message.content:
-                msg = self.message.content
-                newmsg = msg.split(sudo_seperator)[0]
-                newmember = msg.split(sudo_seperator)[1]
-                self.message.content = newmsg
-                userid = int(newmember.lstrip(" ").lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
-                self.guild.get_member(user)
-                self.author = user
-                self.message.author = user
+                try:
+                    msg = self.message.content
+                    newmsg = msg.split(sudo_seperator)[0]
+                    newmember = msg.split(sudo_seperator)[1]
+                    self.message.content = newmsg
+                    userid = int(newmember.lstrip(" ").lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
+                    member = self.guild.get_member(userid)
+                    self.author = member
+                    self.message.author = member
+                except (ValueError, ) as e:
+                    print("[SUDO] - Kein gültiges Mitglied: "+newmember+" - Fehler: "+e)
+
 
     def getargs(self):
         msg = self.message.content.split(" ")
@@ -44,8 +50,8 @@ class MyContext(commands.Context):
         txt = (" ".join(msg[length::])) if len(msg) > length else ""
         return txt.split(sudo_seperator)[0]
 
-    async def sendEmbed(self, *args, **kwargs):
-        return await self.send(embed=self.getEmbed(*args, **kwargs))
+    async def sendEmbed(self, *args, message:str="", **kwargs):
+        return await self.send(message, embed=self.getEmbed(*args, **kwargs))
 
     def getEmbed(self, title:str, description:str="", color:int=0x000000, fields:list=[], inline:bool=True, thumbnailurl:str=None, authorurl:str="", authorname:str=None):
         EMBED = Embed(title=title, description=description, color=color)
@@ -77,7 +83,7 @@ bot = MyBot(
     command_prefix=get_prefix,
     description='Das ist eine Beschreibung!',
     case_insensitive=True,
-    activity=Game(name="/help"),
+    activity=Activity(type=ActivityType.listening, name="/help"),
     status=Status.idle
 )
 
@@ -140,7 +146,7 @@ async def on_command_error(ctx,error):
         EMBED.add_field(name="Beschreibung",value="Es ist ein unbekannter Fehler aufgetreten! Vermutlich liegt er nicht bei dir, also melde ihn am besten einen Admin.")
         print("Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"' ist ein Fehler aufgetreten: "+str(error))
     if not error == "":
-        EMBED.add_field(name="Text",value=error)
+        EMBED.add_field(name="Text",value=str(error) if len(str(error)) < 1024 else str(error)[-1024:-1])
     EMBED.add_field(name="Nachricht",value=ctx.message.content, inline=False)
     await ctx.send(embed=EMBED)
     return

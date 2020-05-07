@@ -130,5 +130,6 @@ dmypy.json
 
 
 
-files/sounds/*
+files/memes/*
+files/youtube/*
 files/ffmpeg.exe
