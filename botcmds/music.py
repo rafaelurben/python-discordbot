@@ -67,7 +67,7 @@ class Music(commands.Cog):
             usage="<Suche>"
         )
         @commands.guild_only()
-        async def meme(self, ctx, search:str="schulgong.wav"):
+        async def meme(self, ctx, search:str="windows-xp-error"):
             search = search+" "+ctx.getargs()
             filenames = list(os.listdir(memespath))
 
@@ -99,7 +99,7 @@ class Music(commands.Cog):
         )
         @commands.guild_only()
         async def play(self, ctx):
-            url = ctx.getargs()
+            url = ctx.getargs(True)
             async with ctx.typing():
                 player = list(await ctx.data.musicqueue.createYoutubePlayer(url, loop=self.bot.loop))[0]
                 if ctx.voice_client.is_playing():
@@ -120,7 +120,7 @@ class Music(commands.Cog):
         )
         @commands.guild_only()
         async def stream(self, ctx):
-            url = ctx.getargs()
+            url = ctx.getargs(True)
             if url in radios:
                 url = radios[url]
 
@@ -188,7 +188,7 @@ class Music(commands.Cog):
                     ctx.voice_client.stop()
                 if ctx.voice_client is not None:
                     ctx.data.musicqueue.playNext(ctx)
-                    await ctx.data.musicqueue.sendNowPlaying(ctx, "Wird aktuell gespielt!")
+                    await ctx.data.musicqueue.sendNowPlaying(ctx)
                 else:
                     raise commands.CommandError(message="Es wurde gar kein Song abgespielt.")
 

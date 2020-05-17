@@ -1,10 +1,10 @@
 from discord.ext import commands
 from discord import Embed, Activity, ActivityType, Status, Streaming, Game
-from cmds import serverfiles
+from botmodules import serverfiles
 
 #
 
-extensionfolder = "cmds"
+extensionfolder = "botcmds"
 extensions = ['basic','support','moderation','games','help','channels','music','owneronly']
 sudo_ids = [285832847409807360]
 sudo_seperator = "--sudo"
@@ -35,7 +35,7 @@ class MyContext(commands.Context):
                     newmsg = msg.split(sudo_seperator)[0]
                     newmember = msg.split(sudo_seperator)[1]
                     self.message.content = newmsg
-                    userid = int(newmember.lstrip(" ").lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
+                    userid = int(newmember.strip().lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
                     member = self.guild.get_member(userid)
                     self.author = member
                     self.message.author = member
@@ -43,12 +43,15 @@ class MyContext(commands.Context):
                     print("[SUDO] - Kein gültiges Mitglied: "+newmember+" - Fehler: "+e)
 
 
-    def getargs(self):
+    def getargs(self, raiserrorwhenmissing=False):
         msg = self.message.content.split(" ")
         calledbymention = bool(self.prefix in all_prefixes)
         length = len(self.args)+len(self.kwargs)-int(calledbymention)
         txt = (" ".join(msg[length::])) if len(msg) > length else ""
-        return txt.split(sudo_seperator)[0]
+        newmessage = txt.split(sudo_seperator)[0].strip()
+        if not newmessage and raiserrorwhenmissing:
+            raise commands.BadArgument(message="Du hast ein wichtiges Argument vergessen!")
+        return newmessage
 
     async def sendEmbed(self, *args, message:str="", **kwargs):
         return await self.send(message, embed=self.getEmbed(*args, **kwargs))
@@ -58,10 +61,13 @@ class MyContext(commands.Context):
         EMBED.set_footer(text=f'Angefordert von {self.author.name}',icon_url=self.author.avatar_url)
         for field in fields:
             EMBED.add_field(name=field[0], value=field[1], inline=field[2] if len(field) > 2 else inline)
-        if thumbnailurl is not None:
-            EMBED.set_thumbnail(url=thumbnailurl)
-        if authorname is not None:
-            EMBED.set_author(name=authorname, url=authorurl)
+        if thumbnailurl:
+            EMBED.set_thumbnail(url=thumbnailurl.strip())
+        if authorname:
+            if authorurl and ("https://" in authorurl or "http://" in authorurl):
+                EMBED.set_author(name=authorname, url=authorurl.strip())
+            else:
+                EMBED.set_author(name=authorname)
         return EMBED
 
     async def tick(self, value):

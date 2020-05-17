@@ -137,9 +137,9 @@ class MusicQueue():
     async def sendNowPlaying(self, ctx):
         if ctx.voice_client and ctx.voice_client.source:
             if isinstance(ctx.voice_client.source, YouTubePlayer):
-                await ctx.voice_client.source.send(ctx)
+                await ctx.voice_client.source.send(ctx, status="Wird jetzt gespielt!")
         else:
-            raise commands.CommandError("Aktuell wird nicht abgespielt.")
+            raise commands.CommandError("Aktuell wird nichts abgespielt.")
 
     async def createYoutubePlayer(self, search, loop=None, stream=False):
         players = await YouTubePlayer.from_url(search, queue=self, loop=loop, stream=stream)
