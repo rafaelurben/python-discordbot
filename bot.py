@@ -5,7 +5,7 @@ from botmodules import serverfiles
 #
 
 extensionfolder = "botcmds"
-extensions = ['basic','support','moderation','games','help','channels','music','owneronly']
+extensions = ['basic','support','moderation','games','help','channels','music','owneronly','converters']
 sudo_ids = [285832847409807360]
 sudo_seperator = "--sudo"
 all_prefixes = ["/","!","$",".","-",">","?"]
@@ -25,22 +25,23 @@ class MyContext(commands.Context):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.data = serverfiles.Server.getServer(self.guild.id)
+        if self.guild is not None:
+            self.data = serverfiles.Server.getServer(self.guild.id)
 
-        ## manupulate ctx for --sudo arg
-        if int(self.author.id) in sudo_ids:
-            if sudo_seperator in self.message.content:
-                try:
-                    msg = self.message.content
-                    newmsg = msg.split(sudo_seperator)[0]
-                    newmember = msg.split(sudo_seperator)[1]
-                    self.message.content = newmsg
-                    userid = int(newmember.strip().lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
-                    member = self.guild.get_member(userid)
-                    self.author = member
-                    self.message.author = member
-                except (ValueError, ) as e:
-                    print("[SUDO] - Kein gültiges Mitglied: "+newmember+" - Fehler: "+e)
+            ## manupulate ctx for --sudo arg
+            if int(self.author.id) in sudo_ids:
+                if sudo_seperator in self.message.content:
+                    try:
+                        msg = self.message.content
+                        newmsg = msg.split(sudo_seperator)[0]
+                        newmember = msg.split(sudo_seperator)[1]
+                        self.message.content = newmsg
+                        userid = int(newmember.strip().lstrip("<@").lstrip("!").lstrip("&").rstrip(">") if "<@" in newmember and ">" in newmember else newmember)
+                        member = self.guild.get_member(userid)
+                        self.author = member
+                        self.message.author = member
+                    except (ValueError, ) as e:
+                        print("[SUDO] - Kein gültiges Mitglied: "+newmember+" - Fehler: "+e)
 
 
     def getargs(self, raiserrorwhenmissing=False):
@@ -109,7 +110,8 @@ async def on_ready():
 @bot.event
 async def on_command(ctx):
     try:
-        await ctx.message.delete()
+        if self.guild is not None:
+            await ctx.message.delete()
     except:
         pass
 

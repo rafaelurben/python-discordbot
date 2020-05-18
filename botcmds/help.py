@@ -19,18 +19,17 @@ class Help(commands.Cog):
         help_embed = ctx.getEmbed(title='Hilfe', color=self.color, inline=False)
 
         def addCog(cog):
-            if cog.qualified_name in ["Owneronly"]:
-                pass
-            cog_commands = cog.get_commands()
-            commands_list = ''
-            for comm in cog_commands:
-                commands_list += f'**{comm.name}** - *{comm.brief}*\n'
+            if not cog.qualified_name in ["Owneronly"]:
+                cog_commands = cog.get_commands()
+                commands_list = ''
+                for comm in cog_commands:
+                    commands_list += f'**{comm.name}** - *{comm.brief}*\n'
 
-            help_embed.add_field(
-                name=cog.qualified_name,
-                value=commands_list+'\u200b',
-                inline=False
-            )
+                help_embed.add_field(
+                    name=cog.qualified_name,
+                    value=commands_list+'\u200b',
+                    inline=False
+                )
 
         def addCommand(cmd):
             help_text = ''

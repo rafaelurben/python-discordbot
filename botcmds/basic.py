@@ -41,7 +41,7 @@ class Basic(commands.Cog):
         description='Gibt den aktuellen Ping zurück',
         aliases=['p'],
         help="Gib einfach /ping ein und warte ab.",
-        usage=None
+        usage=""
     )
     async def ping(self, ctx):
         start = d.timestamp(d.now())
@@ -114,7 +114,6 @@ class Basic(commands.Cog):
             if not invite:
                 invite = await ctx.channel.create_invite()
         await ctx.sendEmbed(title="Einladungen", color=self.color, fields=[("Dieser Server", invite.url),("Bot Server","https://rebrand.ly/RUdiscord"),("Bot","https://rebrand.ly/RUdiscordbot")])
-
 
 def setup(bot):
     bot.add_cog(Basic(bot))
