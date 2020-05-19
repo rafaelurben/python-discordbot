@@ -21,7 +21,7 @@ def setup(bot):
         if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and "#" in before.channel.name and before.channel.members == []:
             await before.channel.delete(reason="Kanal war leer")
             channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
-            EMBED = Embed(title="Sprachkanal gelöscht!", color=self.color)
+            EMBED = Embed(title="Sprachkanal gelöscht!")
             EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
             EMBED.add_field(name="Server",value=member.guild.name)
             await channelowner.send(embed=EMBED)
@@ -33,7 +33,7 @@ def setup(bot):
                 overwrites = { member.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), member: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True,mute_members=True) }
                 newchannel = await category.create_voice_channel(name=(member.name+"#"+member.discriminator),overwrites=overwrites,reason="Benutzer hat den Sprachkanal erstellt")
                 await member.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
-                EMBED = Embed(title="Sprachkanal erstellt!", color=self.color)
+                EMBED = Embed(title="Sprachkanal erstellt!")
                 EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
                 EMBED.add_field(name="Server",value=member.guild.name)
                 await member.send(embed=EMBED)
