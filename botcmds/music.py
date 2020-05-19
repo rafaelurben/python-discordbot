@@ -35,10 +35,10 @@ class Music(commands.Cog):
         self.bot = bot
         self.color = 0xee00ff
 
+        # Siehe Botevent -> on_voice_state_update
+
     # sich in Entwicklung befindende Befehle
-
     if os.getenv("DEBUG", False):
-
         @commands.command(
             name='memes',
             brief='Liste alle Memes auf',

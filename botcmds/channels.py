@@ -2,50 +2,12 @@ from discord.ext import commands
 from discord import Embed, User, Member, utils, PermissionOverwrite, Role
 import typing
 
-
-async def getUserChannelCategory(guild):
-    category = utils.get(guild.categories, name="Benutzerkanäle")
-    if not category:
-        categoryoverwrites = { guild.default_role: PermissionOverwrite(read_messages=False, send_messages=False, connect=False, speak=False, move_members=False, use_voice_activation=True) }
-        textchanneloverwrites = { guild.default_role: PermissionOverwrite(read_messages=True, send_messages=True) }
-        voicechanneloverwrites = { guild.default_role: PermissionOverwrite(read_messages=True, connect=True, speak=False, move_members=False) }
-        category = await guild.create_category_channel(name="Benutzerkanäle", overwrites=categoryoverwrites, reason="Bereite Benutzerkanäle vor...")
-        await category.create_text_channel(name="benutzerkanäle", overwrites=textchanneloverwrites, reason="Bereite Benutzerkanäle vor...", topic="Befehle: /textchannelcreate - /textchanneldelete")
-        await category.create_voice_channel(name="Sprachkanal erstellen", overwrites=voicechanneloverwrites, reason="Bereite Benutzerkanäle vor...")
-    return category
-
-
 class Channels(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.color = 0xee00ff
 
-        @bot.event
-        async def on_voice_state_update(member, before, after):
-            category = await getUserChannelCategory(member.guild)
-            if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and "#" in before.channel.name and before.channel.members == []:
-                await before.channel.delete(reason="Kanal war leer")
-                channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
-                EMBED = Embed(title="Sprachkanal gelöscht!", color=self.color)
-                EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
-                EMBED.add_field(name="Server",value=member.guild.name)
-                await channelowner.send(embed=EMBED)
-            if after.channel and after.channel.name == "Sprachkanal erstellen":
-                channel = utils.get(member.guild.voice_channels, name=(member.name+"#"+member.discriminator))
-                if channel:
-                    await member.edit(voice_channel=channel,reason="Benutzer wollte einen Kanal erstellen, besitzte aber bereits Einen")
-                else:
-                    overwrites = { member.guild.default_role: PermissionOverwrite(connect=False,speak=True,read_messages=False), member: PermissionOverwrite(connect=True,speak=True,read_messages=True,move_members=True,mute_members=True) }
-                    newchannel = await category.create_voice_channel(name=(member.name+"#"+member.discriminator),overwrites=overwrites,reason="Benutzer hat den Sprachkanal erstellt")
-                    await member.edit(voice_channel=newchannel,reason="Benutzer hat den Sprachkanal erstellt")
-                    EMBED = Embed(title="Sprachkanal erstellt!", color=self.color)
-                    EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
-                    EMBED.add_field(name="Server",value=member.guild.name)
-                    await member.send(embed=EMBED)
-            return
-
-
-
+        # Siehe Botevent -> on_voice_state_update
 
     @commands.command(
         brief='Erstelle deinen Textkanal',
