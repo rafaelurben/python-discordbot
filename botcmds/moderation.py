@@ -119,6 +119,30 @@ class Moderation(commands.Cog):
         else:
             raise commands.BadArgument(message="Der Benutzer befindet sich nicht in einem Sprachkanal.")
 
+    @commands.command(
+        brief="Bewegt einen Spieler zu dir",
+        description="Bewegt einen Spieler in deinen aktuellen Kanal",
+        aliases=["mvhere"],
+        help="Benutze /movehere <Member> um ein Mitglied hier hin zu bewegen.",
+        usage="<Member>"
+        )
+    @commands.guild_only()
+    async def movehere(self, ctx, member: Member):
+        if member.voice:
+            if ctx.author.voice:
+                if member.voice.channel.permissions_for(ctx.author).move_members:
+                    if member.voice.channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).move_members:
+                        await member.edit(voice_channel=ctx.author.voice.channel,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert.")
+                        await ctx.sendEmbed(title="Hierhin bewegt", color=self.color, fields=[("Betroffener",member.mention),("Kanal",ctx.author.voice.channel.name)])
+                    else:
+                        raise commands.BotMissingPermissions([])
+                else:
+                    raise commands.MissingPermissions([])
+            else:
+                raise commands.BadArgument(message="Du befindest sich nicht in einem Sprachkanal.")
+        else:
+            raise commands.BadArgument(message="Der Benutzer befindet sich nicht in einem Sprachkanal.")
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
