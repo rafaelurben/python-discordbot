@@ -87,7 +87,7 @@ class YouTubePlayer(PCMVolumeTransformer):
         fields.append(("Status", status, False))
         await ctx.sendEmbed(
             title=self.title,
-            description=self.description if len(self.description) < 100 else self.description[0:100]+"...",
+            description=((self.description if len(self.description) < 100 else self.description[0:100]+"...") if isinstance(self.description, str) else "Keine Beschreibung gefunden"),
             color=ctx.cog.color,
             fields=fields,
             thumbnailurl=self.thumbnail if self.thumbnail else None,
