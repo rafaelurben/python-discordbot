@@ -127,7 +127,7 @@ class MusicQueue():
         return bool(self._players)
 
     def playNext(self, ctx):
-        if self.hasPlayer() and ctx.voice_client:
+        if self.hasPlayer() and ctx.voice_client and ctx.voice_client.is_connected():
             player = self._players.pop(0)
             player.play(ctx)
             return player

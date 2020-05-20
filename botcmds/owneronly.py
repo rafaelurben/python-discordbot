@@ -47,46 +47,48 @@ class Owneronly(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def status(self, ctx, was:str="", was2:str="", arg1:str=""):
+    async def status(self, ctx, STATUS:str="", ACTIVITY:str="", arg1:str=""):
         arg2 = ctx.getargs()
         status = None
         activity = None
-        if was.lower() in ["on","online","green"]:
+        if STATUS.lower() in ["on","online","green"]:
             status = Status.online
-        elif was.lower() in ["off","offline","invisible","grey"]:
+        elif STATUS.lower() in ["off","offline","invisible","grey"]:
             status = Status.invisible
-        elif was.lower() in ["dnd","donotdisturb","do_not_disturb","bittenichtstören","red"]:
+        elif STATUS.lower() in ["dnd","donotdisturb","do_not_disturb","bittenichtstören","red"]:
             status = Status.dnd
-        elif was.lower() in ["idle","abwesend","orange","yellow"]:
+        elif STATUS.lower() in ["idle","abwesend","orange","yellow"]:
             status = Status.idle
 
-        if was2.lower() in ["playing","spielt","game","play"]:
+        if ACTIVITY.lower() in ["playing","spielt","game","play"]:
             activity=Game(name=arg1+" "+arg2)
-        elif was2.lower() in ["streaming","streamt","stream","live","twitch"]:
-            activity=Streaming(url=arg1, name=arg2)
-        elif was2.lower() in ["listening","listen","hört","hören","song"]:
+        elif ACTIVITY.lower() in ["streaming","streamt","stream","live","twitch"]:
+            activity=Streaming(url="https://twitch.tv/"+arg1, name=arg2)
+        elif ACTIVITY.lower() in ["listening","listen","hört","hören","song"]:
             activity=Activity(type=ActivityType.listening, name=arg1+" "+arg2)
-        elif was2.lower() in ["watching","watch","schaut","video"]:
+        elif ACTIVITY.lower() in ["watching","watch","schaut","video"]:
             activity=Activity(type=ActivityType.watching, name=arg1+" "+arg2)
 
         if status is not None or activity is not None:
             await ctx.bot.change_presence(status=status, activity=activity)
         else:
-            await ctx.sendEmbed(title="Mögliche Status", color=0xff0000, inline=False, description="Syntax: /status <STATUS> [AKTIVITÄT] [ARGUMENTE]",
-                fields=[
-                    ("Online",              "on/online"),
-                    ("Abwesend",            "idle"),
-                    ("Bitte nicht stören",  "dnd"),
-                    ("Unsichtbar",          "off/offline")
-                ]
-            )
-            await ctx.sendEmbed(title="Mögliche Aktivitäten", color=0xff0000, inline=False, description="Syntax: /status <STATUS> [AKTIVITÄT] [ARGUMENTE]",
-                fields=[
-                    ("Game",    "spielt <EIN SPIEL>"),
-                    ("Stream",  "streamt <TWITCH-NAME> <LIVE AUF TWITCH>"),
-                    ("Song",    "hört <SONG>"),
-                    ("Video",   "schaut <VIDEO>")
-                ]
+            await ctx.sendEmbed(title="Status ändern", color=0xff0000, inline=False,
+            description="""
+            **Syntax:**
+            /status <STATUS> [AKTIVITÄT] [ARGUMENTE]
+
+            **Mögliche Status:**
+            on/online (Online)
+            idle (Abwesend)
+            dnd (Bitte nicht stören)
+            off/offline (Unsichtbar)
+
+            **Mögliche Aktivitäten:**
+            spielt <SPIEL>
+            streamt <TWITCH-NAME> <SPIEL>
+            hört <SONG>
+            schaut <VIDEO>
+            """
             )
 
 
