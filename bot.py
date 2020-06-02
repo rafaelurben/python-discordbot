@@ -115,7 +115,7 @@ async def on_ready():
 
 @bot.event
 async def on_command(ctx):
-    print(f"[Command] - {ctx.message.content} von {ctx.author.name}#{str(ctx.author.discriminator}")
+    print(f"[Command] - {ctx.message.content} von {ctx.author.name}#{str(ctx.author.discriminator)}")
     if ctx.guild is not None:
         try:
             await ctx.message.delete()
