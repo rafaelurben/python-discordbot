@@ -1,3 +1,3 @@
 # Discordbot
 
-Leere Beschreibung
+Mein eigener, kleiner Discordbot, geschrieben mit Python.
