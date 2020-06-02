@@ -94,17 +94,17 @@ bot = MyBot(
     status=Status.idle
 )
 
-from botevents.on_voice_state_update import setup as on_voice_state_update_setup
-on_voice_state_update_setup(bot)
-
-from botevents.on_command_error import setup as on_command_error_setup
-on_command_error_setup(bot)
-
 # Events
+
+from botevents.on_voice_state_update import setup as setup_on_voice_state_update
+from botevents.on_command_error import setup as setup_on_command_error
+
+setup_on_voice_state_update(bot)
+setup_on_command_error(bot)
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'[Bot] - Logged in as {bot.user.name} - {bot.user.id}')
     bot.remove_command('help')
     for extension in extensions:
         try:
@@ -115,12 +115,12 @@ async def on_ready():
 
 @bot.event
 async def on_command(ctx):
-    try:
-        if self.guild is not None:
+    print(f"[Command] - {ctx.message.content} von {ctx.author.name}#{str(ctx.author.discriminator}")
+    if ctx.guild is not None:
+        try:
             await ctx.message.delete()
-    except:
-        pass
-
+        except:
+            pass
 
 # Hidden commands
 
@@ -144,5 +144,5 @@ if __name__ == "__main__":
     elif len(sys.argv) > 1:
         run(sys.argv[1])
     else:
-        print("No TOKEN found! Enter it manually...")
+        print("[Bot] - No TOKEN found! Enter it manually...")
         run(input("TOKEN: "))

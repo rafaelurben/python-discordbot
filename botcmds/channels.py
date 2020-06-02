@@ -2,6 +2,17 @@ from discord.ext import commands
 from discord import Embed, User, Member, utils, PermissionOverwrite, Role
 import typing
 
+async def getUserChannelCategory(guild):
+    category = utils.get(guild.categories, name="Benutzerkanäle")
+    if not category:
+        categoryoverwrites = { guild.default_role: PermissionOverwrite(read_messages=False, send_messages=False, connect=False, speak=False, move_members=False, use_voice_activation=True) }
+        textchanneloverwrites = { guild.default_role: PermissionOverwrite(read_messages=True, send_messages=True) }
+        voicechanneloverwrites = { guild.default_role: PermissionOverwrite(read_messages=True, connect=True, speak=False, move_members=False) }
+        category = await guild.create_category_channel(name="Benutzerkanäle", overwrites=categoryoverwrites, reason="Bereite Benutzerkanäle vor...")
+        await category.create_text_channel(name="benutzerkanäle", overwrites=textchanneloverwrites, reason="Bereite Benutzerkanäle vor...", topic="Befehle: /textchannelcreate - /textchanneldelete")
+        await category.create_voice_channel(name="Sprachkanal erstellen", overwrites=voicechanneloverwrites, reason="Bereite Benutzerkanäle vor...")
+    return category
+
 class Channels(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

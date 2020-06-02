@@ -74,7 +74,7 @@ class Music(commands.Cog):
             result = process.extractOne(search, filenames)
             filename = result[0]
 
-            print(search, result)
+            print("[Music] - Suchergebnis:", search, result)
 
             if result[1] >= 75:
                 player = PCMVolumeTransformer(FFmpegPCMAudio(source=os.path.join(memespath, filename), **ffmpeg_options))
@@ -82,7 +82,7 @@ class Music(commands.Cog):
                 if ctx.voice_client.is_playing():
                     ctx.voice_client.stop()
 
-                ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+                ctx.voice_client.play(player, after=lambda e: print('[Music] - Fehler: %s' % e) if e else None)
                 await ctx.sendEmbed(title="Memetime!", color=self.color, fields=[("Meme",str(filename).split(".")[0])])
             else:
                 raise commands.BadArgument(message="Es wurden keine mit '{}' übereinstimmende Audiodatei gefunden.".format(search))

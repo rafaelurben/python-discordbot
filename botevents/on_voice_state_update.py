@@ -38,6 +38,10 @@ def setup(bot):
                 EMBED.add_field(name="Server",value=member.guild.name)
                 await member.send(embed=EMBED)
 
+
+
+
+
         # Music
         if os.getenv("DEBUG", False):
             filespath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "files")
@@ -57,4 +61,4 @@ def setup(bot):
                     await voice_client.move_to(before.channel)
 
                 player = PCMVolumeTransformer(FFmpegPCMAudio(source=os.path.join(memespath, "grillenzirpen.wav"), **ffmpeg_options))
-                voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+                voice_client.play(player, after=lambda e: print('[Msuic] - Error: %s' % e) if e else None)

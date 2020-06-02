@@ -12,7 +12,7 @@ def setup(bot):
             EMBED.add_field(name="Beschreibung",value="Du hast ein benötigtes Argument weggelassen!")
         elif isinstance(error, commands.CommandNotFound):
             EMBED.add_field(name="Beschreibung",value="Dieser Command existiert nicht!")
-            print("Command '"+ctx.message.content+"' von '"+ctx.message.author.name+"' wurde nicht gefunden")
+            print("[Command] - '"+ctx.message.content+"' von '"+ctx.message.author.name+"' wurde nicht gefunden")
             return # keine Nachricht senden!
         elif isinstance(error, commands.CommandError):
             EMBED.add_field(name="Beschreibung",value="Bei einem Befehl ist ein Fehler aufgetreten!")
@@ -39,7 +39,7 @@ def setup(bot):
             return # keine Nachricht senden!
         else:
             EMBED.add_field(name="Beschreibung",value="Es ist ein unbekannter Fehler aufgetreten! Vermutlich liegt er nicht bei dir, also melde ihn am besten einen Admin.")
-            print("Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"' ist ein Fehler aufgetreten: "+str(error))
+            print("[Command] - Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"' ist ein Fehler aufgetreten: "+str(error))
         if not error == "":
             EMBED.add_field(name="Text",value=str(error) if len(str(error)) < 1024 else str(error)[-1024:-1])
         EMBED.add_field(name="Nachricht",value=ctx.message.content, inline=False)
