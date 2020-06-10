@@ -50,9 +50,11 @@ class Music(commands.Cog):
         @commands.guild_only()
         async def memes(self, ctx):
             filenames = list(os.listdir(memespath))
-            for chunk in list(chunks(filenames, 25)):
+            chunklist = list(chunks(filenames, 25))
+            for chunkindex in range(len(chunklist)):
+                chunk = chunklist[chunkindex]
                 await ctx.sendEmbed(
-                    title="Memes ("+str(len(chunk))+") - Gesamt: "+str(len(filenames)),
+                    title="Memes (Seite "+str(chunkindex+1)+"/"+str(len(chunklist))+")",
                     color=self.color,
                     fields=[("Meme", filename.split(".")[0]) for filename in chunk]
                 )
@@ -93,7 +95,7 @@ class Music(commands.Cog):
             name='play',
             brief='Spiele Musik',
             description='Spiele Musik von Youtube und anderen Plattformen!',
-            aliases=["yt","youtube","spotify"],
+            aliases=["yt","youtube"],
             help="Benutze /play <Url/Suche> um einen Song abzuspielen.",
             usage="<Url/Suche>"
         )
@@ -196,7 +198,7 @@ class Music(commands.Cog):
             name='volume',
             brief='Ändere die Lautstärke',
             description='Ändere die Lautstärke des Bots',
-            aliases=["lautstärke"],
+            aliases=["vol"],
             help="Benutze /volume <1-200> um die Lautstärke des Bots zu ändern.",
             usage="<1-200>"
         )

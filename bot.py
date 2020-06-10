@@ -5,7 +5,7 @@ from botmodules import serverfiles
 #
 
 extensionfolder = "botcmds"
-extensions = ['basic','support','moderation','games','help','channels','music','owneronly','converters']
+extensions = ['basic','support','moderation','games','help','channels','music','owneronly','converters','embedgenerator']
 sudo_ids = [285832847409807360]
 sudo_seperator = "--sudo"
 all_prefixes = ["/","!","$",".","-",">","?"]
@@ -57,11 +57,13 @@ class MyContext(commands.Context):
     async def sendEmbed(self, *args, message:str="", **kwargs):
         return await self.send(message, embed=self.getEmbed(*args, **kwargs))
 
-    def getEmbed(self, title:str, description:str="", color:int=0x000000, fields:list=[], inline:bool=True, thumbnailurl:str=None, authorurl:str="", authorname:str=None):
+    def getEmbed(self, title:str, description:str="", color:int=0x000000, fields:list=[], inline=True, thumbnailurl:str=None, authorurl:str="", authorname:str=None, footertext:str="Angefordert von USER", footerurl:str="AVATARURL", timestamp=False):
         EMBED = Embed(title=title, description=description, color=color)
-        EMBED.set_footer(text=f'Angefordert von {self.author.name}',icon_url=self.author.avatar_url)
+        EMBED.set_footer(text=footertext.replace("USER", str(self.author.name+"#"+self.author.discriminator)), icon_url=footerurl.replace("AVATARURL", str(self.author.avatar_url)))
+        if timestamp:
+            EMBED.timestamp = datetime.utcnow() if timestamp is True else timestamp
         for field in fields:
-            EMBED.add_field(name=field[0], value=field[1], inline=field[2] if len(field) > 2 else inline)
+            EMBED.add_field(name=field[0], value=field[1], inline=bool(field[2] if len(field) > 2 else inline))
         if thumbnailurl:
             EMBED.set_thumbnail(url=thumbnailurl.strip())
         if authorname:
@@ -104,7 +106,7 @@ setup_on_command_error(bot)
 
 @bot.event
 async def on_ready():
-    print(f'[Bot] - Logged in as {bot.user.name} - {bot.user.id}')
+    print(f"[Bot] - Logged in as '{bot.user.name}' - '{bot.user.id}'")
     bot.remove_command('help')
     for extension in extensions:
         try:
@@ -115,7 +117,7 @@ async def on_ready():
 
 @bot.event
 async def on_command(ctx):
-    print(f"[Command] - {ctx.message.content} von {ctx.author.name}#{str(ctx.author.discriminator)}")
+    #print(f"[Command] - '{ctx.message.content}' von '{ctx.author.name}#{str(ctx.author.discriminator)}'")
     if ctx.guild is not None:
         try:
             await ctx.message.delete()

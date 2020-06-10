@@ -18,6 +18,7 @@ def setup(bot):
             return category
 
         category = await getUserChannelCategory(member.guild)
+        # Delete channel if empty
         if before.channel and before.channel.category and before.channel.category.name.upper() == "BENUTZERKANÄLE" and "#" in before.channel.name and before.channel.members == []:
             await before.channel.delete(reason="Kanal war leer")
             channelowner = utils.get(before.channel.guild.members, name=before.channel.name.split("#")[0], discriminator=before.channel.name.split("#")[1])
@@ -25,6 +26,7 @@ def setup(bot):
             EMBED.set_footer(text=f'Kanal von {member.name}',icon_url=member.avatar_url)
             EMBED.add_field(name="Server",value=member.guild.name)
             await channelowner.send(embed=EMBED)
+        # Create new channel
         if after.channel and after.channel.name == "Sprachkanal erstellen":
             channel = utils.get(member.guild.voice_channels, name=(member.name+"#"+member.discriminator))
             if channel:
@@ -52,6 +54,7 @@ def setup(bot):
                 'executable': os.path.join(filespath,"ffmpeg.exe")
             }
 
+            # *Grillenzirpen* nach Streamende
             if before.channel and before.self_stream and not after.self_stream:
                 voice_client = before.channel.guild.voice_client
                 if voice_client is None:
