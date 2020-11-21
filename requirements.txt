@@ -1,4 +1,4 @@
-requests==2.24.0
+requests==2.25.0
 discord.py[voice]==1.5.1
 opuslib==3.0.1
 ffmpeg==1.4
