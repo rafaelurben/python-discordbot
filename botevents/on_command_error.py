@@ -5,7 +5,7 @@ def setup(bot):
     @bot.event
     async def on_command_error(ctx,error):
         EMBED = Embed(title="Fehler", color=0xff0000)
-        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}',icon_url=ctx.author.avatar_url)
+        EMBED.set_footer(text=f'Angefordert von {ctx.message.author.name}#{ctx.message.author.discriminator}',icon_url=ctx.author.avatar_url)
         if isinstance(error, commands.BadArgument):
             EMBED.add_field(name="Beschreibung",value="Du hast ungültige Argumente angegeben!")
         elif isinstance(error, commands.MissingRequiredArgument):
@@ -39,7 +39,7 @@ def setup(bot):
             return # keine Nachricht senden!
         else:
             EMBED.add_field(name="Beschreibung",value="Es ist ein unbekannter Fehler aufgetreten! Vermutlich liegt er nicht bei dir, also melde ihn am besten einen Admin.")
-            print("[Command] - Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"' ist ein Fehler aufgetreten: "+str(error))
+            print("[Command] - Bei '"+ctx.message.content+"' von '"+ctx.message.author.name+"#"+ctx.message.author.discriminator+"' ist ein Fehler aufgetreten: "+str(error))
         if not error == "":
             EMBED.add_field(name="Text",value=str(error) if len(str(error)) < 1024 else str(error)[-1024:-1])
         EMBED.add_field(name="Nachricht",value=ctx.message.content, inline=False)

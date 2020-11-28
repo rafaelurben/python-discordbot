@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord import Embed, Activity, ActivityType, Status, Streaming, Game
-from botmodules import serverfiles
+from botmodules import serverfiles, apis
 
 #
 
@@ -24,6 +24,8 @@ def get_prefix(client, message):
 class MyContext(commands.Context):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.apis = apis
 
         if self.guild is not None:
             self.data = serverfiles.Server.getServer(self.guild.id)

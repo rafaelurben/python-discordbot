@@ -110,8 +110,11 @@ class Moderation(commands.Cog):
         if VoiceState:
             if VoiceState.channel.permissions_for(ctx.author).move_members:
                 if VoiceState.channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).move_members:
-                    await member.edit(voice_channel=None,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
-                    await ctx.sendEmbed(title="Benutzer Getötet", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
+                    if ctx.author.roles[-1] >= member.roles[-1]:
+                        await member.edit(voice_channel=None,reason="Von Moderator "+ctx.author.name+"#"+ctx.author.discriminator+" angefordert: "+Grund)
+                        await ctx.sendEmbed(title="Benutzer Getötet", color=self.color, fields=[("Betroffener",member.mention),("Grund",Grund)])
+                    else:
+                        raise commands.BadArgument(message="Deine Rolle ist nicht höher als oder gleich wie die des Benutzers, den du töten wolltest!")
                 else:
                     raise commands.BotMissingPermissions([])
             else:
